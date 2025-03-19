@@ -6,6 +6,6 @@
 ## Demo: 
 <details open="open">
   <ol>
-    <li><a href="https://github.com/VietBinhNe/Android/tree/main/Week2_QuadraticEquationSolver" Video Demo</a></li>
+    <li><a href="https://github.com/VietBinhNe/Android/blob/main/Week2_QuadraticEquationSolver/demo.mp4">Video Demo</a></li>
   </ol>
 </details>
