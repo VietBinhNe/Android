@@ -6,7 +6,6 @@
     android:padding="16dp"
     android:background="#FFFFFF">
 
-    <!-- Khoảng trống trên cùng -->
     <Space
         android:layout_width="match_parent"
         android:layout_height="50dp"/>
@@ -62,7 +61,7 @@
             android:inputType="numberSigned|numberDecimal"
             android:background="#EEEEEE"
             android:padding="8dp"
-            android:textColor="#000000"/> <!-- Màu chữ đen -->
+            android:textColor="#000000"/> 
     </LinearLayout>
 
     <!-- Input b -->
@@ -89,7 +88,7 @@
             android:inputType="numberSigned|numberDecimal"
             android:background="#EEEEEE"
             android:padding="8dp"
-            android:textColor="#000000"/> <!-- Màu chữ đen -->
+            android:textColor="#000000"/> 
     </LinearLayout>
 
     <!-- Input c -->
@@ -116,7 +115,7 @@
             android:inputType="numberSigned|numberDecimal"
             android:background="#EEEEEE"
             android:padding="8dp"
-            android:textColor="#000000"/> <!-- Màu chữ đen -->
+            android:textColor="#000000"/> 
     </LinearLayout>
 
     <!-- Button Solve -->
