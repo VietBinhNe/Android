@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#FFFFFF">
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="40dp"/>
+
+    <!-- Header THÔNG TIN THU THẬP -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="THÔNG TIN THU THẬP"
+        android:textColor="#1976D2"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:padding="12dp"
+        android:background="#E1F5FE"/>
+
+    <!-- Hiển thị thông tin trong box -->
+    <TextView
+        android:id="@+id/tvCollectedInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        android:background="@drawable/textview_border"
+        android:padding="16dp"/>
+
+    <!-- Các nút chức năng -->
+    <Button
+        android:id="@+id/btnCall"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="GỌI ĐIỆN"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="#99FF66"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"/>
+
+    <Button
+        android:id="@+id/btnSms"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="GỬI SMS"
+        android:layout_marginTop="8dp"
+        android:backgroundTint="#FFCC33"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"/>
+
+    <Button
+        android:id="@+id/btnCamera"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="CHỤP ẢNH"
+        android:layout_marginTop="8dp"
+        android:backgroundTint="#CC33FF"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"/>
+
+    <!-- Nút Back -->
+    <Button
+        android:id="@+id/btnBack"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="QUAY LẠI"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="#FF5722"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"/>
+</LinearLayout>
