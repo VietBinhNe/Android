@@ -9,4 +9,6 @@
 
   <li><a href="https://github.com/VietBinhNe/Android/tree/main/Week4_LaunchApp">Week 4 : App Launcher.</a></li>
 
+  <li><a href="https://github.com/VietBinhNe/Android/tree/main/Week5_Calculator">Week 5 : Calculator.</a></li>
+
 <h2 id="Run"> Run multiple file</h2>
