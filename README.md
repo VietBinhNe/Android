@@ -11,4 +11,5 @@
 
   <li><a href="https://github.com/VietBinhNe/Android/tree/main/Week5_Calculator">Week 5 : Calculator.</a></li>
 
-<h2 id="Run"> Run multiple file</h2>
+## Requirements
+- IDE : This project using **Android Studio 2024.3.4.1 Patch 1 for Windows**

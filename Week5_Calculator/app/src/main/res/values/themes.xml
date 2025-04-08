@@ -1,0 +1,15 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme -->
+    <style name="Theme.Week5_Calculator" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Primary brand color -->
+        <item name="colorPrimary">@android:color/white</item>
+        <item name="colorPrimaryDark">@android:color/white</item>
+        <item name="colorAccent">@android:color/white</item>
+        <!-- Ensure no tint is applied to buttons -->
+        <item name="android:buttonStyle">@style/ButtonStyle</item>
+    </style>
+
+    <style name="ButtonStyle" parent="Widget.AppCompat.Button">
+        <item name="android:backgroundTint">@null</item>
+    </style>
+</resources>
