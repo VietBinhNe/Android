@@ -13,7 +13,7 @@
 
   <li><a href="https://github.com/VietBinhNe/Android/tree/main/Week6_LoginUI">Week 6 : Login UI.</a></li>
 
-  <li><a href="https://github.com/VietBinhNe/Android/tree/main/Week7_GameLogin">Week 6 : Login UI.</a></li>
+  <li><a href="https://github.com/VietBinhNe/Android/tree/main/Week7_GameLogin">Week 7 : Game Login.</a></li>
   
 ## Requirements
 - IDE : This project using **Android Studio 2024.3.4.1 Patch 1 for Windows**
