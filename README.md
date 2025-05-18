@@ -16,6 +16,8 @@
   <li><a href="https://github.com/VietBinhNe/Android/tree/main/Week7_GameLogin">Week 7 : Game Login.</a></li>
   
   <li><a href="https://github.com/VietBinhNe/Android/tree/main/Week8_ListView">Week 8 : List View.</a></li>
+
+  <li><a href="https://github.com/VietBinhNe/Android/tree/main/Week8_ListView">Week 9 : List View.</a></li>
   
 ## Requirements
 - IDE : This project using **Android Studio 2024.3.4.1 Patch 1 for Windows**
