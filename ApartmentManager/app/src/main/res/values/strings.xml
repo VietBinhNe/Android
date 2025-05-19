@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">ApartmentManager</string>
+    <string name="login">Đăng nhập</string>
+    <string name="register">Đăng ký</string>
+    <string name="email">Email</string>
+    <string name="password">Mật khẩu</string>
+    <string name="confirm_password">Xác nhận mật khẩu</string>
+    <string name="home">Trang chủ</string>
+    <string name="amenity">Tiện ích</string>
+    <string name="bill">Hóa đơn</string>
+    <string name="notification">Thông báo</string>
+    <string name="request">Yêu cầu</string>
+</resources>

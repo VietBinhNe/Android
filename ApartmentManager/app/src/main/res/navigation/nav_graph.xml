@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.example.apartmentmanager.fragments.HomeFragment"
+        android:label="Trang chủ">
+        <action
+            android:id="@+id/action_nav_home_to_nav_amenity"
+            app:destination="@id/nav_amenity"/>
+        <action
+            android:id="@+id/action_nav_home_to_nav_bill"
+            app:destination="@id/nav_bill"/>
+        <action
+            android:id="@+id/action_nav_home_to_nav_notification"
+            app:destination="@id/nav_notification"/>
+        <action
+            android:id="@+id/action_nav_home_to_nav_request"
+            app:destination="@id/nav_request"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_amenity"
+        android:name="com.example.apartmentmanager.fragments.AmenityFragment"
+        android:label="Tiện ích"/>
+
+    <fragment
+        android:id="@+id/nav_bill"
+        android:name="com.example.apartmentmanager.fragments.BillFragment"
+        android:label="Hóa đơn"/>
+
+    <fragment
+        android:id="@+id/nav_notification"
+        android:name="com.example.apartmentmanager.fragments.NotificationFragment"
+        android:label="Thông báo"/>
+
+    <fragment
+        android:id="@+id/nav_request"
+        android:name="com.example.apartmentmanager.fragments.RequestFragment"
+        android:label="Yêu cầu"/>
+</navigation>
