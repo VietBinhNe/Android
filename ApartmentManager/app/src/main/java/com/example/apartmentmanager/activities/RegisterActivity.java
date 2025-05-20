@@ -1,16 +1,19 @@
 package com.example.apartmentmanager.activities;
 
 import android.os.Bundle;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.apartmentmanager.R;
+import com.example.apartmentmanager.models.User;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class RegisterActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
-    private EditText emailEditText, passwordEditText, confirmPasswordEditText;
+    private FirebaseFirestore db;
+    private TextInputEditText emailEditText, passwordEditText, confirmPasswordEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,10 +21,11 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
 
         mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
         emailEditText = findViewById(R.id.email);
         passwordEditText = findViewById(R.id.password);
         confirmPasswordEditText = findViewById(R.id.confirm_password);
-        Button registerButton = findViewById(R.id.registerButton);
+        MaterialButton registerButton = findViewById(R.id.registerButton);
 
         registerButton.setOnClickListener(v -> {
             String email = emailEditText.getText().toString().trim();
@@ -41,8 +45,17 @@ public class RegisterActivity extends AppCompatActivity {
             mAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this, task -> {
                         if (task.isSuccessful()) {
-                            Toast.makeText(RegisterActivity.this, "Đăng ký thành công", Toast.LENGTH_SHORT).show();
-                            finish();
+                            String userId = mAuth.getCurrentUser().getUid();
+                            User user = new User(userId, email, "resident");
+                            db.collection("users").document(userId)
+                                    .set(user)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Toast.makeText(RegisterActivity.this, "Đăng ký thành công", Toast.LENGTH_SHORT).show();
+                                        finish();
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Toast.makeText(RegisterActivity.this, "Lỗi lưu thông tin: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    });
                         } else {
                             Toast.makeText(RegisterActivity.this, "Đăng ký thất bại: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                         }

@@ -18,7 +18,7 @@ public class RequestViewModel extends ViewModel {
     }
 
     public LiveData<List<Request>> getRequests() {
-        firebaseService.getRequests(requests::setValue);
+        firebaseService.getRequests(result -> requests.setValue(result));
         return requests;
     }
 }

@@ -1,33 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
+<com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp">
+    android:layout_margin="8dp"
+    app:cardElevation="4dp"
+    app:cardCornerRadius="8dp">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:padding="16dp">
 
         <TextView
             android:id="@+id/bill_title"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Tiêu đề hóa đơn"
-            android:textStyle="bold"/>
+            android:text="Tiêu đề"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/colorPrimary"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/delete_button"/>
 
         <TextView
-            android:id="@+id/bill_amount"
+            android:id="@+id/bill_apartment_id"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Phòng"
+            android:textSize="14sp"
+            app:layout_constraintTop_toBottomOf="@id/bill_title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/delete_button"
+            android:layout_marginTop="8dp"/>
+
+        <TextView
+            android:id="@+id/bill_items_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Số tiền"/>
+            android:text="Các mục:"
+            android:textSize="14sp"
+            app:layout_constraintTop_toBottomOf="@id/bill_apartment_id"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="8dp"/>
+
+        <TextView
+            android:id="@+id/bill_items"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Danh sách mục"
+            android:textSize="14sp"
+            app:layout_constraintTop_toBottomOf="@id/bill_items_label"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/delete_button"
+            android:layout_marginTop="8dp"/>
+
+        <TextView
+            android:id="@+id/bill_total_amount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Tổng tiền"
+            android:textSize="14sp"
+            app:layout_constraintTop_toBottomOf="@id/bill_items"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/delete_button"
+            android:layout_marginTop="8dp"/>
 
         <TextView
             android:id="@+id/bill_due_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Ngày đến hạn"
+            android:textSize="14sp"
+            app:layout_constraintTop_toBottomOf="@id/bill_total_amount"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/delete_button"
+            android:layout_marginTop="8dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/delete_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ngày đến hạn"/>
-    </LinearLayout>
-</androidx.cardview.widget.CardView>
+            android:text="Xóa"
+            style="@style/Widget.Material3.Button.TextButton"
+            app:backgroundTint="@android:color/transparent"
+            android:textColor="@color/colorAccent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

@@ -18,7 +18,7 @@ public class BillViewModel extends ViewModel {
     }
 
     public LiveData<List<Bill>> getBills() {
-        firebaseService.getBills(bills::setValue);
+        firebaseService.getBills(result -> bills.setValue(result));
         return bills;
     }
 }

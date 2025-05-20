@@ -18,7 +18,7 @@ public class AmenityViewModel extends ViewModel {
     }
 
     public LiveData<List<Amenity>> getAmenities() {
-        firebaseService.getAmenities(amenities::setValue);
+        firebaseService.getAmenities(result -> amenities.setValue(result));
         return amenities;
     }
 }

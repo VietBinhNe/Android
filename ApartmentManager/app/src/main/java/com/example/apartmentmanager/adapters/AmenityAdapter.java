@@ -3,10 +3,12 @@ package com.example.apartmentmanager.adapters;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.apartmentmanager.R;
 import com.example.apartmentmanager.models.Amenity;
+
 import java.util.List;
 
 public class AmenityAdapter extends RecyclerView.Adapter<AmenityAdapter.ViewHolder> {
@@ -28,6 +30,15 @@ public class AmenityAdapter extends RecyclerView.Adapter<AmenityAdapter.ViewHold
         Amenity amenity = amenityList.get(position);
         holder.nameTextView.setText(amenity.getName());
         holder.descriptionTextView.setText(amenity.getDescription());
+
+        // Hiển thị ảnh dựa trên id tiện ích
+        if ("amenity1".equals(amenity.getId())) {
+            holder.imageView.setImageResource(R.drawable.pool);
+        } else if ("amenity2".equals(amenity.getId())) {
+            holder.imageView.setImageResource(R.drawable.gym);
+        } else {
+            holder.imageView.setImageResource(R.drawable.ic_amenity);
+        }
     }
 
     @Override
@@ -37,11 +48,13 @@ public class AmenityAdapter extends RecyclerView.Adapter<AmenityAdapter.ViewHold
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView nameTextView, descriptionTextView;
+        ImageView imageView;
 
         public ViewHolder(View itemView) {
             super(itemView);
             nameTextView = itemView.findViewById(R.id.amenity_name);
             descriptionTextView = itemView.findViewById(R.id.amenity_description);
+            imageView = itemView.findViewById(R.id.amenity_image);
         }
     }
 }

@@ -6,13 +6,71 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
+    <ImageView
+        android:id="@+id/main_image"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
     <TextView
         android:id="@+id/welcome_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Chào mừng"
         android:textSize="24sp"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/main_image"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/booking_management_button"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:text="Quản lý đặt dịch vụ"
+        android:textColor="@android:color/white"
+        app:layout_constraintTop_toBottomOf="@id/welcome_text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:padding="16dp"
+        android:textSize="16sp"
+        style="@style/Widget.Material3.Button.ElevatedButton"
+        app:backgroundTint="@color/pastel_blue"
+        app:cornerRadius="8dp"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/room_availability_button"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:text="Xem phòng trống"
+        android:textColor="@android:color/white"
+        app:layout_constraintTop_toBottomOf="@id/booking_management_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:padding="16dp"
+        android:textSize="16sp"
+        style="@style/Widget.Material3.Button.ElevatedButton"
+        app:backgroundTint="@color/pastel_blue"
+        app:cornerRadius="8dp"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/resident_management_button"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:text="Quản lý người thuê phòng"
+        android:textColor="@android:color/white"
+        app:layout_constraintTop_toBottomOf="@id/room_availability_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:padding="16dp"
+        android:textSize="16sp"
+        style="@style/Widget.Material3.Button.ElevatedButton"
+        app:backgroundTint="@color/pastel_blue"
+        app:cornerRadius="8dp"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

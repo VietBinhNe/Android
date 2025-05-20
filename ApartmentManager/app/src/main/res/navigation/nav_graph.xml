@@ -7,38 +7,45 @@
     <fragment
         android:id="@+id/nav_home"
         android:name="com.example.apartmentmanager.fragments.HomeFragment"
-        android:label="Trang chủ">
-        <action
-            android:id="@+id/action_nav_home_to_nav_amenity"
-            app:destination="@id/nav_amenity"/>
-        <action
-            android:id="@+id/action_nav_home_to_nav_bill"
-            app:destination="@id/nav_bill"/>
-        <action
-            android:id="@+id/action_nav_home_to_nav_notification"
-            app:destination="@id/nav_notification"/>
-        <action
-            android:id="@+id/action_nav_home_to_nav_request"
-            app:destination="@id/nav_request"/>
-    </fragment>
-
-    <fragment
-        android:id="@+id/nav_amenity"
-        android:name="com.example.apartmentmanager.fragments.AmenityFragment"
-        android:label="Tiện ích"/>
+        android:label="Home" />
 
     <fragment
         android:id="@+id/nav_bill"
         android:name="com.example.apartmentmanager.fragments.BillFragment"
-        android:label="Hóa đơn"/>
-
-    <fragment
-        android:id="@+id/nav_notification"
-        android:name="com.example.apartmentmanager.fragments.NotificationFragment"
-        android:label="Thông báo"/>
+        android:label="Bill" />
 
     <fragment
         android:id="@+id/nav_request"
         android:name="com.example.apartmentmanager.fragments.RequestFragment"
-        android:label="Yêu cầu"/>
+        android:label="Request" />
+
+    <fragment
+        android:id="@+id/nav_service"
+        android:name="com.example.apartmentmanager.fragments.ServiceFragment"
+        android:label="Service" />
+
+    <fragment
+        android:id="@+id/nav_booking_management"
+        android:name="com.example.apartmentmanager.fragments.BookingManagementFragment"
+        android:label="Booking Management" />
+
+    <fragment
+        android:id="@+id/nav_room_availability"
+        android:name="com.example.apartmentmanager.fragments.RoomAvailabilityFragment"
+        android:label="Room Availability" />
+
+    <fragment
+        android:id="@+id/nav_resident_management"
+        android:name="com.example.apartmentmanager.fragments.ResidentManagementFragment"
+        android:label="Resident Management" />
+
+    <fragment
+        android:id="@+id/nav_notification"
+        android:name="com.example.apartmentmanager.fragments.NotificationFragment"
+        android:label="Notification" />
+
+    <fragment
+        android:id="@+id/nav_user"
+        android:name="com.example.apartmentmanager.fragments.ResidentManagementFragment"
+        android:label="User" />
 </navigation>

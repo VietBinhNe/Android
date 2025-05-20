@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.apartmentmanager.R;
 import com.example.apartmentmanager.adapters.AmenityAdapter;
 import com.example.apartmentmanager.viewmodels.AmenityViewModel;
+
 import java.util.ArrayList;
 
 public class AmenityFragment extends Fragment {

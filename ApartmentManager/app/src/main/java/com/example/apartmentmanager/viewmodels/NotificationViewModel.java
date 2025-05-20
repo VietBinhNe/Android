@@ -18,7 +18,7 @@ public class NotificationViewModel extends ViewModel {
     }
 
     public LiveData<List<Notification>> getNotifications() {
-        firebaseService.getNotifications(notifications::setValue);
+        firebaseService.getNotifications(result -> notifications.setValue(result));
         return notifications;
     }
 }
