@@ -7,18 +7,18 @@ public class Bill {
     private String title;
     private String apartmentId;
     private List<BillItem> items;
-    private double totalAmount;
     private String dueDate;
+    private String status;
 
     public Bill() {}
 
-    public Bill(String id, String title, String apartmentId, List<BillItem> items, double totalAmount, String dueDate) {
+    public Bill(String id, String title, String apartmentId, List<BillItem> items, String dueDate, String status) {
         this.id = id;
         this.title = title;
         this.apartmentId = apartmentId;
         this.items = items;
-        this.totalAmount = totalAmount;
         this.dueDate = dueDate;
+        this.status = status;
     }
 
     public String getId() { return id; }
@@ -29,8 +29,8 @@ public class Bill {
     public void setApartmentId(String apartmentId) { this.apartmentId = apartmentId; }
     public List<BillItem> getItems() { return items; }
     public void setItems(List<BillItem> items) { this.items = items; }
-    public double getTotalAmount() { return totalAmount; }
-    public void setTotalAmount(double totalAmount) { this.totalAmount = totalAmount; }
     public String getDueDate() { return dueDate; }
     public void setDueDate(String dueDate) { this.dueDate = dueDate; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 }

@@ -30,6 +30,7 @@ public class RoomAvailabilityFragment extends Fragment {
     private RecyclerView recyclerView;
     private ApartmentAdapter apartmentAdapter;
     private FirebaseService firebaseService;
+    private String userRole;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -48,6 +49,7 @@ public class RoomAvailabilityFragment extends Fragment {
             return null;
         }
 
+        userRole = requireActivity().getIntent().getStringExtra("userRole");
         recyclerView = view.findViewById(R.id.room_recycler_view);
         if (recyclerView == null) {
             Log.e(TAG, "onCreateView: RecyclerView is null");
@@ -107,7 +109,7 @@ public class RoomAvailabilityFragment extends Fragment {
             Window window = dialog.getWindow();
             if (window != null) {
                 WindowManager.LayoutParams params = window.getAttributes();
-                params.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.95); // 95% chiều ngang màn hình
+                params.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.95);
                 window.setAttributes(params);
             }
         } catch (Exception e) {
@@ -149,34 +151,38 @@ public class RoomAvailabilityFragment extends Fragment {
         detailsLabelTextView.setText("Chi tiết:");
         detailsTextView.setText(apartment.getDetails() != null ? apartment.getDetails() : "Không có chi tiết");
 
-        requestButton.setOnClickListener(v -> {
-            String userId = FirebaseAuth.getInstance().getCurrentUser() != null ?
-                    FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
-            if (userId == null) {
-                Log.e(TAG, "showRoomDetailsDialog: User ID is null");
-                Toast.makeText(getContext(), "Lỗi: Người dùng chưa đăng nhập", Toast.LENGTH_SHORT).show();
-                dialog.dismiss();
-                return;
-            }
-
-            Request request = new Request(
-                    UUID.randomUUID().toString(),
-                    "Yêu cầu thuê phòng " + (apartment.getNumber() != null ? apartment.getNumber() : "Không xác định"),
-                    "Người dùng " + userId + " yêu cầu thuê phòng " + apartment.getId(),
-                    "2025-05-20",
-                    "pending",
-                    userId
-            );
-            Log.d(TAG, "showRoomDetailsDialog: Sending rent request for apartment: " + apartment.getId());
-            firebaseService.addRequest(request, success -> {
-                if (success) {
-                    Toast.makeText(getContext(), "Yêu cầu thuê đã được gửi", Toast.LENGTH_SHORT).show();
+        // Ẩn nút "Yêu cầu" đối với admin
+        requestButton.setVisibility("resident".equals(userRole) ? View.VISIBLE : View.GONE);
+        if ("resident".equals(userRole)) {
+            requestButton.setOnClickListener(v -> {
+                String userId = FirebaseAuth.getInstance().getCurrentUser() != null ?
+                        FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
+                if (userId == null) {
+                    Log.e(TAG, "showRoomDetailsDialog: User ID is null");
+                    Toast.makeText(getContext(), "Lỗi: Người dùng chưa đăng nhập", Toast.LENGTH_SHORT).show();
                     dialog.dismiss();
-                } else {
-                    Toast.makeText(getContext(), "Gửi yêu cầu thất bại", Toast.LENGTH_SHORT).show();
+                    return;
                 }
+
+                Request request = new Request(
+                        UUID.randomUUID().toString(),
+                        "Yêu cầu thuê phòng " + (apartment.getNumber() != null ? apartment.getNumber() : "Không xác định"),
+                        "Người dùng " + userId + " yêu cầu thuê phòng " + apartment.getId(),
+                        "2025-05-20",
+                        "pending",
+                        userId
+                );
+                Log.d(TAG, "showRoomDetailsDialog: Sending rent request for apartment: " + apartment.getId());
+                firebaseService.addRequest(request, success -> {
+                    if (success) {
+                        Toast.makeText(getContext(), "Yêu cầu thuê đã được gửi", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    } else {
+                        Toast.makeText(getContext(), "Gửi yêu cầu thất bại", Toast.LENGTH_SHORT).show();
+                    }
+                });
             });
-        });
+        }
 
         closeButton.setOnClickListener(v -> dialog.dismiss());
         dialog.show();

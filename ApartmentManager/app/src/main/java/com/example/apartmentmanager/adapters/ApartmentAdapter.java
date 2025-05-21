@@ -10,18 +10,15 @@ import com.example.apartmentmanager.R;
 import com.example.apartmentmanager.models.Apartment;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class ApartmentAdapter extends RecyclerView.Adapter<ApartmentAdapter.ViewHolder> {
     private List<Apartment> apartmentList;
-    private OnItemClickListener listener;
+    private Consumer<Apartment> onApartmentClickListener;
 
-    public interface OnItemClickListener {
-        void onItemClick(Apartment apartment);
-    }
-
-    public ApartmentAdapter(List<Apartment> apartmentList, OnItemClickListener listener) {
+    public ApartmentAdapter(List<Apartment> apartmentList, Consumer<Apartment> onApartmentClickListener) {
         this.apartmentList = apartmentList;
-        this.listener = listener;
+        this.onApartmentClickListener = onApartmentClickListener;
     }
 
     @Override
@@ -33,9 +30,36 @@ public class ApartmentAdapter extends RecyclerView.Adapter<ApartmentAdapter.View
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Apartment apartment = apartmentList.get(position);
-        holder.apartmentName.setText("Phòng " + apartment.getNumber());
-        holder.apartmentImage.setImageResource(R.drawable.main_image); // Thay bằng hình ảnh thực tế nếu có
-        holder.itemView.setOnClickListener(v -> listener.onItemClick(apartment));
+        holder.roomNumberTextView.setText("Phòng " + apartment.getNumber());
+        holder.statusTextView.setText("available".equals(apartment.getStatus()) ? "Chưa thuê" : "Đang thuê");
+
+        // Hiển thị hình ảnh dựa trên apartment ID
+        switch (apartment.getId()) {
+            case "apartment101":
+                holder.apartmentImageView.setImageResource(R.drawable.apartment101);
+                break;
+            case "apartment102":
+                holder.apartmentImageView.setImageResource(R.drawable.apartment102);
+                break;
+            case "apartment103":
+                holder.apartmentImageView.setImageResource(R.drawable.apartment103);
+                break;
+            case "apartment201":
+                holder.apartmentImageView.setImageResource(R.drawable.apartment201);
+                break;
+            case "apartment202":
+                holder.apartmentImageView.setImageResource(R.drawable.apartment202);
+                break;
+            default:
+                holder.apartmentImageView.setImageResource(android.R.drawable.ic_menu_info_details); // Hình ảnh mặc định từ Android
+                break;
+        }
+
+        holder.itemView.setOnClickListener(v -> {
+            if (onApartmentClickListener != null) {
+                onApartmentClickListener.accept(apartment);
+            }
+        });
     }
 
     @Override
@@ -44,13 +68,14 @@ public class ApartmentAdapter extends RecyclerView.Adapter<ApartmentAdapter.View
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        ImageView apartmentImage;
-        TextView apartmentName;
+        ImageView apartmentImageView;
+        TextView roomNumberTextView, statusTextView;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            apartmentImage = itemView.findViewById(R.id.apartment_image);
-            apartmentName = itemView.findViewById(R.id.apartment_name);
+            apartmentImageView = itemView.findViewById(R.id.apartment_image);
+            roomNumberTextView = itemView.findViewById(R.id.room_number);
+            statusTextView = itemView.findViewById(R.id.status);
         }
     }
 }

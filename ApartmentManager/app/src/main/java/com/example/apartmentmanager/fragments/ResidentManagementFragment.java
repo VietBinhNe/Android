@@ -28,6 +28,7 @@ import java.util.List;
 public class ResidentManagementFragment extends Fragment {
     private static final String TAG = "ResidentManagement";
     private RecyclerView recyclerView;
+    private View progressBar;
     private ResidentAdapter residentAdapter;
     private ApartmentAdapter apartmentAdapter;
     private FirebaseService firebaseService;
@@ -39,11 +40,13 @@ public class ResidentManagementFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_resident_management, container, false);
 
-        userRole = requireActivity().getIntent().getStringExtra("userRole");
         recyclerView = view.findViewById(R.id.resident_recycler_view);
+        progressBar = view.findViewById(R.id.progress_bar);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         firebaseService = new FirebaseService();
+        userRole = getArguments() != null ? getArguments().getString("userRole") : "resident";
+        Log.d(TAG, "User role: " + userRole);
 
         if ("admin".equals(userRole)) {
             apartmentList = new ArrayList<>();
@@ -61,11 +64,20 @@ public class ResidentManagementFragment extends Fragment {
     }
 
     private void loadAllApartments() {
+        Log.d(TAG, "Loading all apartments for admin");
+        progressBar.setVisibility(View.VISIBLE);
+        recyclerView.setVisibility(View.GONE);
         firebaseService.getApartments(apartments -> {
+            progressBar.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
             if (apartments == null || apartments.isEmpty()) {
                 Log.e(TAG, "loadAllApartments: No apartments found");
                 Toast.makeText(getContext(), "Không có dữ liệu phòng", Toast.LENGTH_SHORT).show();
                 return;
+            }
+            Log.d(TAG, "loadAllApartments: Found " + apartments.size() + " apartments");
+            for (Apartment apartment : apartments) {
+                Log.d(TAG, "Apartment: " + apartment.getId() + ", Number: " + apartment.getNumber() + ", Status: " + apartment.getStatus());
             }
             apartmentList.clear();
             apartmentList.addAll(apartments);
@@ -74,8 +86,13 @@ public class ResidentManagementFragment extends Fragment {
     }
 
     private void loadResidentApartment() {
+        Log.d(TAG, "Loading resident apartment");
+        progressBar.setVisibility(View.VISIBLE);
+        recyclerView.setVisibility(View.GONE);
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         firebaseService.getApartmentByResident(userId, apartment -> {
+            progressBar.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
             if (apartment == null) {
                 Log.e(TAG, "loadResidentApartment: No apartment found for user: " + userId);
                 Toast.makeText(getContext(), "Không tìm thấy phòng của bạn", Toast.LENGTH_SHORT).show();
@@ -101,7 +118,7 @@ public class ResidentManagementFragment extends Fragment {
                         return;
                     }
 
-                    String tenantName = user.getEmail() != null ? user.getEmail() : "Không xác định";
+                    String tenantName = user.getName() != null ? user.getName() : "Không xác định";
                     String leaseDuration = user.getLeaseDuration() != null ? user.getLeaseDuration() : "Không xác định";
                     Log.d(TAG, "loadResidentApartment: User found - Name: " + tenantName + ", Lease Duration: " + leaseDuration);
 
@@ -132,7 +149,6 @@ public class ResidentManagementFragment extends Fragment {
         Dialog dialog = new Dialog(requireContext(), R.style.CustomDialog);
         dialog.setContentView(R.layout.dialog_apartment_details);
 
-        // Tùy chỉnh chiều ngang dialog
         Window window = dialog.getWindow();
         if (window != null) {
             WindowManager.LayoutParams params = window.getAttributes();
@@ -144,16 +160,22 @@ public class ResidentManagementFragment extends Fragment {
         TextView statusTextView = dialog.findViewById(R.id.apartment_status);
         TextView tenantTextView = dialog.findViewById(R.id.tenant_name);
         TextView leaseDurationTextView = dialog.findViewById(R.id.lease_duration);
+        TextView priceTextView = dialog.findViewById(R.id.price);
+        TextView descriptionTextView = dialog.findViewById(R.id.description);
+        TextView detailsTextView = dialog.findViewById(R.id.details);
         MaterialButton closeButton = dialog.findViewById(R.id.close_button);
 
         numberTextView.setText("Phòng: " + apartment.getNumber());
         statusTextView.setText("Trạng thái: " + ("available".equals(apartment.getStatus()) ? "Chưa thuê" : "Đang thuê"));
+        priceTextView.setText("Giá: " + String.format("%.2f", apartment.getPrice()));
+        descriptionTextView.setText("Mô tả: " + (apartment.getDescription() != null ? apartment.getDescription() : "Không có mô tả"));
+        detailsTextView.setText("Chi tiết: " + (apartment.getDetails() != null ? apartment.getDetails() : "Không có chi tiết"));
 
         String residentId = apartment.getResidentId();
         if (residentId != null) {
             firebaseService.getUser(residentId, user -> {
                 if (user != null) {
-                    tenantTextView.setText("Chủ hộ: " + (user.getEmail() != null ? user.getEmail() : "Không xác định"));
+                    tenantTextView.setText("Chủ hộ: " + (user.getName() != null ? user.getName() : "Không xác định"));
                     leaseDurationTextView.setText("Thời gian thuê: " + (user.getLeaseDuration() != null ? user.getLeaseDuration() : "Không xác định"));
                 } else {
                     tenantTextView.setText("Chủ hộ: Không xác định");

@@ -1,51 +1,162 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/nav_home">
-
-    <fragment
-        android:id="@+id/nav_home"
-        android:name="com.example.apartmentmanager.fragments.HomeFragment"
-        android:label="Home" />
-
-    <fragment
-        android:id="@+id/nav_bill"
-        android:name="com.example.apartmentmanager.fragments.BillFragment"
-        android:label="Bill" />
-
-    <fragment
-        android:id="@+id/nav_request"
-        android:name="com.example.apartmentmanager.fragments.RequestFragment"
-        android:label="Request" />
-
-    <fragment
-        android:id="@+id/nav_service"
-        android:name="com.example.apartmentmanager.fragments.ServiceFragment"
-        android:label="Service" />
-
-    <fragment
-        android:id="@+id/nav_booking_management"
-        android:name="com.example.apartmentmanager.fragments.BookingManagementFragment"
-        android:label="Booking Management" />
-
-    <fragment
-        android:id="@+id/nav_room_availability"
-        android:name="com.example.apartmentmanager.fragments.RoomAvailabilityFragment"
-        android:label="Room Availability" />
-
-    <fragment
-        android:id="@+id/nav_resident_management"
-        android:name="com.example.apartmentmanager.fragments.ResidentManagementFragment"
-        android:label="Resident Management" />
-
-    <fragment
-        android:id="@+id/nav_notification"
-        android:name="com.example.apartmentmanager.fragments.NotificationFragment"
-        android:label="Notification" />
-
-    <fragment
-        android:id="@+id/nav_user"
-        android:name="com.example.apartmentmanager.fragments.ResidentManagementFragment"
-        android:label="User" />
+        <fragment
+            android:id="@+id/nav_home"
+            android:name="com.example.apartmentmanager.fragments.HomeFragment"
+            android:label="Home"
+            tools:layout="@layout/fragment_home">
+                <action
+                    android:id="@+id/action_nav_home_to_nav_notification"
+                    app:destination="@id/nav_notification" />
+                <action
+                    android:id="@+id/action_nav_home_to_nav_bill"
+                    app:destination="@id/nav_bill" />
+                <action
+                    android:id="@+id/action_nav_home_to_nav_resident_management"
+                    app:destination="@id/nav_resident_management" />
+                <action
+                    android:id="@+id/action_nav_home_to_nav_service"
+                    app:destination="@id/nav_service" />
+                <action
+                    android:id="@+id/action_nav_home_to_nav_request"
+                    app:destination="@id/nav_request" />
+                <action
+                    android:id="@+id/action_nav_home_to_nav_room_availability"
+                    app:destination="@id/nav_room_availability" />
+        </fragment>
+        <fragment
+            android:id="@+id/nav_room_availability"
+            android:name="com.example.apartmentmanager.fragments.RoomAvailabilityFragment"
+            android:label="Room Availability"
+            tools:layout="@layout/fragment_room_availability">
+                <action
+                    android:id="@+id/action_nav_room_availability_to_nav_home"
+                    app:destination="@id/nav_home" />
+                <action
+                    android:id="@+id/action_nav_room_availability_to_nav_notification"
+                    app:destination="@id/nav_notification" />
+                <action
+                    android:id="@+id/action_nav_room_availability_to_nav_bill"
+                    app:destination="@id/nav_bill" />
+                <action
+                    android:id="@+id/action_nav_room_availability_to_nav_resident_management"
+                    app:destination="@id/nav_resident_management" />
+                <action
+                    android:id="@+id/action_nav_room_availability_to_nav_service"
+                    app:destination="@id/nav_service" />
+                <action
+                    android:id="@+id/action_nav_room_availability_to_nav_request"
+                    app:destination="@id/nav_request" />
+        </fragment>
+        <fragment
+            android:id="@+id/nav_notification"
+            android:name="com.example.apartmentmanager.fragments.NotificationFragment"
+            android:label="Notification"
+            tools:layout="@layout/fragment_notification">
+                <action
+                    android:id="@+id/action_nav_notification_to_nav_home"
+                    app:destination="@id/nav_home"
+                    app:popUpTo="@id/nav_home"
+                    app:popUpToInclusive="true" />
+                <action
+                    android:id="@+id/action_nav_notification_to_nav_bill"
+                    app:destination="@id/nav_bill" />
+                <action
+                    android:id="@+id/action_nav_notification_to_nav_resident_management"
+                    app:destination="@id/nav_resident_management" />
+                <action
+                    android:id="@+id/action_nav_notification_to_nav_service"
+                    app:destination="@id/nav_service" />
+                <action
+                    android:id="@+id/action_nav_notification_to_nav_request"
+                    app:destination="@id/nav_request" />
+        </fragment>
+        <fragment
+            android:id="@+id/nav_bill"
+            android:name="com.example.apartmentmanager.fragments.BillFragment"
+            android:label="Bill"
+            tools:layout="@layout/fragment_bill">
+                <action
+                    android:id="@+id/action_nav_bill_to_nav_home"
+                    app:destination="@id/nav_home" />
+                <action
+                    android:id="@+id/action_nav_bill_to_nav_notification"
+                    app:destination="@id/nav_notification" />
+                <action
+                    android:id="@+id/action_nav_bill_to_nav_resident_management"
+                    app:destination="@id/nav_resident_management" />
+                <action
+                    android:id="@+id/action_nav_bill_to_nav_service"
+                    app:destination="@id/nav_service" />
+                <action
+                    android:id="@+id/action_nav_bill_to_nav_request"
+                    app:destination="@id/nav_request" />
+        </fragment>
+        <fragment
+            android:id="@+id/nav_resident_management"
+            android:name="com.example.apartmentmanager.fragments.ResidentManagementFragment"
+            android:label="User"
+            tools:layout="@layout/fragment_resident_management">
+                <action
+                    android:id="@+id/action_nav_resident_management_to_nav_home"
+                    app:destination="@id/nav_home" />
+                <action
+                    android:id="@+id/action_nav_resident_management_to_nav_notification"
+                    app:destination="@id/nav_notification" />
+                <action
+                    android:id="@+id/action_nav_resident_management_to_nav_bill"
+                    app:destination="@id/nav_bill" />
+                <action
+                    android:id="@+id/action_nav_resident_management_to_nav_service"
+                    app:destination="@id/nav_service" />
+                <action
+                    android:id="@+id/action_nav_resident_management_to_nav_request"
+                    app:destination="@id/nav_request" />
+        </fragment>
+        <fragment
+            android:id="@+id/nav_service"
+            android:name="com.example.apartmentmanager.fragments.ServiceFragment"
+            android:label="Service"
+            tools:layout="@layout/fragment_service">
+                <action
+                    android:id="@+id/action_nav_service_to_nav_home"
+                    app:destination="@id/nav_home" />
+                <action
+                    android:id="@+id/action_nav_service_to_nav_notification"
+                    app:destination="@id/nav_notification" />
+                <action
+                    android:id="@+id/action_nav_service_to_nav_bill"
+                    app:destination="@id/nav_bill" />
+                <action
+                    android:id="@+id/action_nav_service_to_nav_resident_management"
+                    app:destination="@id/nav_resident_management" />
+                <action
+                    android:id="@+id/action_nav_service_to_nav_request"
+                    app:destination="@id/nav_request" />
+        </fragment>
+        <fragment
+            android:id="@+id/nav_request"
+            android:name="com.example.apartmentmanager.fragments.RequestFragment"
+            android:label="Request"
+            tools:layout="@layout/fragment_request">
+                <action
+                    android:id="@+id/action_nav_request_to_nav_home"
+                    app:destination="@id/nav_home" />
+                <action
+                    android:id="@+id/action_nav_request_to_nav_notification"
+                    app:destination="@id/nav_notification" />
+                <action
+                    android:id="@+id/action_nav_request_to_nav_bill"
+                    app:destination="@id/nav_bill" />
+                <action
+                    android:id="@+id/action_nav_request_to_nav_resident_management"
+                    app:destination="@id/nav_resident_management" />
+                <action
+                    android:id="@+id/action_nav_request_to_nav_service"
+                    app:destination="@id/nav_service" />
+        </fragment>
 </navigation>

@@ -1,19 +1,21 @@
 package com.example.apartmentmanager.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.apartmentmanager.R;
 import com.example.apartmentmanager.models.User;
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.textfield.TextInputEditText;
+import com.example.apartmentmanager.network.FirebaseService;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 public class RegisterActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
-    private TextInputEditText emailEditText, passwordEditText, confirmPasswordEditText;
+    private FirebaseService firebaseService;
+    private EditText nameEditText, emailEditText, passwordEditText;
+    private Button registerButton, loginButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,45 +23,46 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
 
         mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
-        emailEditText = findViewById(R.id.email);
-        passwordEditText = findViewById(R.id.password);
-        confirmPasswordEditText = findViewById(R.id.confirm_password);
-        MaterialButton registerButton = findViewById(R.id.registerButton);
+        firebaseService = new FirebaseService();
+        nameEditText = findViewById(R.id.name_input);
+        emailEditText = findViewById(R.id.email_input);
+        passwordEditText = findViewById(R.id.password_input);
+        registerButton = findViewById(R.id.register_button);
+        loginButton = findViewById(R.id.loginButton);
 
-        registerButton.setOnClickListener(v -> {
-            String email = emailEditText.getText().toString().trim();
-            String password = passwordEditText.getText().toString().trim();
-            String confirmPassword = confirmPasswordEditText.getText().toString().trim();
-
-            if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-                Toast.makeText(RegisterActivity.this, "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if (!password.equals(confirmPassword)) {
-                Toast.makeText(RegisterActivity.this, "Mật khẩu không khớp", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            mAuth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(this, task -> {
-                        if (task.isSuccessful()) {
-                            String userId = mAuth.getCurrentUser().getUid();
-                            User user = new User(userId, email, "resident");
-                            db.collection("users").document(userId)
-                                    .set(user)
-                                    .addOnSuccessListener(aVoid -> {
-                                        Toast.makeText(RegisterActivity.this, "Đăng ký thành công", Toast.LENGTH_SHORT).show();
-                                        finish();
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        Toast.makeText(RegisterActivity.this, "Lỗi lưu thông tin: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                    });
-                        } else {
-                            Toast.makeText(RegisterActivity.this, "Đăng ký thất bại: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
+        registerButton.setOnClickListener(v -> registerUser());
+        loginButton.setOnClickListener(v -> {
+            startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+            finish();
         });
+    }
+
+    private void registerUser() {
+        String name = nameEditText.getText().toString().trim();
+        String email = emailEditText.getText().toString().trim();
+        String password = passwordEditText.getText().toString().trim();
+
+        if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        String userId = mAuth.getCurrentUser().getUid();
+                        User user = new User(userId, email, name, null); // leaseDuration đặt là null
+                        firebaseService.addUser(user, success -> {
+                            if (success) {
+                                Toast.makeText(RegisterActivity.this, "Đăng ký thành công", Toast.LENGTH_SHORT).show();
+                                finish();
+                            } else {
+                                Toast.makeText(RegisterActivity.this, "Lưu thông tin người dùng thất bại", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    } else {
+                        Toast.makeText(RegisterActivity.this, "Đăng ký thất bại: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                });
     }
 }

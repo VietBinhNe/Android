@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
+<androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -15,79 +15,33 @@
 
         <TextView
             android:id="@+id/bill_title"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tiêu đề"
+            android:text="Tiêu đề hóa đơn"
             android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="@color/colorPrimary"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/delete_button"/>
+            app:layout_constraintStart_toStartOf="parent"/>
 
         <TextView
-            android:id="@+id/bill_apartment_id"
-            android:layout_width="0dp"
+            android:id="@+id/apartment_id"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Phòng"
             android:textSize="14sp"
             app:layout_constraintTop_toBottomOf="@id/bill_title"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/delete_button"
-            android:layout_marginTop="8dp"/>
+            android:layout_marginTop="4dp"/>
 
         <TextView
-            android:id="@+id/bill_items_label"
+            android:id="@+id/due_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Các mục:"
+            android:text="Hạn"
             android:textSize="14sp"
-            app:layout_constraintTop_toBottomOf="@id/bill_apartment_id"
+            app:layout_constraintTop_toBottomOf="@id/apartment_id"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="8dp"/>
-
-        <TextView
-            android:id="@+id/bill_items"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Danh sách mục"
-            android:textSize="14sp"
-            app:layout_constraintTop_toBottomOf="@id/bill_items_label"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/delete_button"
-            android:layout_marginTop="8dp"/>
-
-        <TextView
-            android:id="@+id/bill_total_amount"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Tổng tiền"
-            android:textSize="14sp"
-            app:layout_constraintTop_toBottomOf="@id/bill_items"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/delete_button"
-            android:layout_marginTop="8dp"/>
-
-        <TextView
-            android:id="@+id/bill_due_date"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Ngày đến hạn"
-            android:textSize="14sp"
-            app:layout_constraintTop_toBottomOf="@id/bill_total_amount"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/delete_button"
-            android:layout_marginTop="8dp"/>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/delete_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Xóa"
-            style="@style/Widget.Material3.Button.TextButton"
-            app:backgroundTint="@android:color/transparent"
-            android:textColor="@color/colorAccent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            android:layout_marginTop="4dp"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
-</com.google.android.material.card.MaterialCardView>
+</androidx.cardview.widget.CardView>
