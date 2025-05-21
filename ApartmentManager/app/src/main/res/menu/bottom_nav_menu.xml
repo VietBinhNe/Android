@@ -5,19 +5,19 @@
         android:icon="@drawable/ic_home"
         android:title="Home" />
     <item
+        android:id="@+id/nav_resident_management"
+        android:icon="@drawable/ic_user"
+        android:title="User" />
+    <item
         android:id="@+id/nav_bill"
         android:icon="@drawable/ic_bill"
         android:title="Bill" />
-    <item
-        android:id="@+id/nav_request"
-        android:icon="@drawable/ic_request"
-        android:title="Request" />
     <item
         android:id="@+id/nav_service"
         android:icon="@drawable/ic_service"
         android:title="Service" />
     <item
-        android:id="@+id/nav_user"
-        android:icon="@drawable/ic_user"
-        android:title="User" />
+        android:id="@+id/nav_request"
+        android:icon="@drawable/ic_request"
+        android:title="Request" />
 </menu>

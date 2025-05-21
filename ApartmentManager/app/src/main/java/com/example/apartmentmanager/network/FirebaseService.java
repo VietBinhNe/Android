@@ -17,66 +17,34 @@ import java.util.function.Consumer;
 
 public class FirebaseService {
     private static final String TAG = "FirebaseService";
-    private FirebaseFirestore db;
+    private final FirebaseFirestore db;
 
     public FirebaseService() {
         db = FirebaseFirestore.getInstance();
     }
 
-    public void addApartment(Apartment apartment, Consumer<Boolean> callback) {
-        db.collection("apartments").document(apartment.getId())
-                .set(apartment)
-                .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "Apartment added successfully: " + apartment.getId());
-                    callback.accept(true);
+    public void getUser(String userId, Consumer<User> callback) {
+        Log.d(TAG, "Attempting to load user: " + userId);
+        db.collection("users").document(userId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        User user = documentSnapshot.toObject(User.class);
+                        Log.d(TAG, "Loaded user: " + userId + ", Name: " + (user != null ? user.getName() : "null"));
+                        callback.accept(user);
+                    } else {
+                        Log.w(TAG, "User not found: " + userId);
+                        callback.accept(null);
+                    }
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error adding apartment: " + e.getMessage(), e);
-                    callback.accept(false);
-                });
-    }
-
-    public void getApartments(Consumer<List<Apartment>> callback) {
-        Log.d(TAG, "Attempting to load apartments from Firestore");
-        db.collection("apartments")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        List<Apartment> apartments = new ArrayList<>();
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            Apartment apartment = document.toObject(Apartment.class);
-                            Log.d(TAG, "Loaded apartment: " + apartment.getId());
-                            apartments.add(apartment);
-                        }
-                        Log.d(TAG, "Total apartments loaded: " + apartments.size());
-                        callback.accept(apartments);
-                    } else {
-                        Log.e(TAG, "Error getting apartments: " + (task.getException() != null ? task.getException().getMessage() : "Unknown error"), task.getException());
-                        callback.accept(null);
-                    }
-                });
-    }
-
-    public void getApartmentByResident(String userId, Consumer<Apartment> callback) {
-        Log.d(TAG, "Attempting to load apartment for user: " + userId);
-        db.collection("apartments")
-                .whereEqualTo("residentId", userId)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                        Apartment apartment = task.getResult().getDocuments().get(0).toObject(Apartment.class);
-                        Log.d(TAG, "Loaded apartment for user " + userId + ": " + apartment.getId());
-                        callback.accept(apartment);
-                    } else {
-                        Log.w(TAG, "No apartment found for user: " + userId);
-                        callback.accept(null);
-                    }
+                    Log.e(TAG, "Error loading user: " + e.getMessage(), e);
+                    callback.accept(null);
                 });
     }
 
     public void addUser(User user, Consumer<Boolean> callback) {
-        db.collection("users").document(user.getId())
-                .set(user)
+        Log.d(TAG, "Attempting to add user: " + user.getId());
+        db.collection("users").document(user.getId()).set(user)
                 .addOnSuccessListener(aVoid -> {
                     Log.d(TAG, "User added successfully: " + user.getId());
                     callback.accept(true);
@@ -87,60 +55,71 @@ public class FirebaseService {
                 });
     }
 
-    public void getUser(String userId, Consumer<User> callback) {
-        Log.d(TAG, "Attempting to load user: " + userId);
-        db.collection("users").document(userId)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && task.getResult().exists()) {
-                        User user = task.getResult().toObject(User.class);
-                        Log.d(TAG, "Loaded user: " + userId + ", Name: " + user.getName());
-                        callback.accept(user);
-                    } else {
-                        Log.w(TAG, "User not found: " + userId);
-                        callback.accept(null);
+    public void getApartments(Consumer<List<Apartment>> callback) {
+        Log.d(TAG, "Attempting to load all apartments");
+        db.collection("apartments").get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Apartment> apartments = new ArrayList<>();
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        Apartment apartment = document.toObject(Apartment.class);
+                        apartments.add(apartment);
                     }
+                    Log.d(TAG, "Loaded " + apartments.size() + " apartments");
+                    callback.accept(apartments);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error loading apartments: " + e.getMessage(), e);
+                    callback.accept(null);
                 });
     }
 
-    public void addBill(Bill bill, Consumer<Boolean> callback) {
-        db.collection("bills").document(bill.getId())
-                .set(bill)
-                .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "Bill added successfully: " + bill.getId());
-                    callback.accept(true);
+    public void getApartmentByResident(String userId, Consumer<Apartment> callback) {
+        Log.d(TAG, "Attempting to load apartment for user: " + userId);
+        db.collection("apartments")
+                .whereEqualTo("residentId", userId)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                            Apartment apartment = document.toObject(Apartment.class);
+                            Log.d(TAG, "Loaded apartment for user " + userId + ": " + apartment.getId());
+                            callback.accept(apartment);
+                            return;
+                        }
+                    } else {
+                        Log.w(TAG, "No apartment found for user: " + userId);
+                        callback.accept(null);
+                    }
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error adding bill: " + e.getMessage(), e);
-                    callback.accept(false);
+                    Log.e(TAG, "Error loading apartment for user: " + e.getMessage(), e);
+                    callback.accept(null);
                 });
     }
 
     public void getBills(Consumer<List<Bill>> callback) {
         Log.d(TAG, "Attempting to load bills from Firestore");
-        db.collection("bills")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        List<Bill> bills = new ArrayList<>();
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            Bill bill = document.toObject(Bill.class);
-                            Log.d(TAG, "Loaded bill: " + bill.getId());
-                            bills.add(bill);
-                        }
-                        Log.d(TAG, "Total bills loaded: " + bills.size());
-                        callback.accept(bills);
-                    } else {
-                        Log.e(TAG, "Error getting bills: " + (task.getException() != null ? task.getException().getMessage() : "Unknown error"), task.getException());
-                        callback.accept(null);
+        db.collection("bills").get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Bill> bills = new ArrayList<>();
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        Bill bill = document.toObject(Bill.class);
+                        bills.add(bill);
+                        Log.d(TAG, "Loaded bill: " + bill.getId());
                     }
+                    Log.d(TAG, "Total bills loaded: " + bills.size());
+                    callback.accept(bills);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error loading bills: " + e.getMessage(), e);
+                    callback.accept(null);
                 });
     }
 
     public void updateBill(Bill bill, Consumer<Boolean> callback) {
         Log.d(TAG, "Attempting to update bill: " + bill.getId() + ", New status: " + bill.getStatus());
-        db.collection("bills").document(bill.getId())
-                .set(bill)
+        db.collection("bills").document(bill.getId()).set(bill)
                 .addOnSuccessListener(aVoid -> {
                     Log.d(TAG, "Bill updated successfully: " + bill.getId());
                     callback.accept(true);
@@ -151,9 +130,28 @@ public class FirebaseService {
                 });
     }
 
+    public void getServices(Consumer<List<Service>> callback) {
+        Log.d(TAG, "Attempting to load services from Firestore");
+        db.collection("services").get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Service> services = new ArrayList<>();
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        Service service = document.toObject(Service.class);
+                        services.add(service);
+                        Log.d(TAG, "Loaded service: " + service.getId());
+                    }
+                    Log.d(TAG, "Total services loaded: " + services.size());
+                    callback.accept(services);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error loading services: " + e.getMessage(), e);
+                    callback.accept(null);
+                });
+    }
+
     public void addService(Service service, Consumer<Boolean> callback) {
-        db.collection("services").document(service.getId())
-                .set(service)
+        Log.d(TAG, "Attempting to add service: " + service.getId());
+        db.collection("services").document(service.getId()).set(service)
                 .addOnSuccessListener(aVoid -> {
                     Log.d(TAG, "Service added successfully: " + service.getId());
                     callback.accept(true);
@@ -164,64 +162,176 @@ public class FirebaseService {
                 });
     }
 
-    public void getServices(Consumer<List<Service>> callback) {
-        Log.d(TAG, "Attempting to load services from Firestore");
-        db.collection("services")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        List<Service> services = new ArrayList<>();
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            Service service = document.toObject(Service.class);
-                            Log.d(TAG, "Loaded service: " + service.getId());
-                            services.add(service);
-                        }
-                        Log.d(TAG, "Total services loaded: " + services.size());
-                        callback.accept(services);
-                    } else {
-                        Log.e(TAG, "Error getting services: " + (task.getException() != null ? task.getException().getMessage() : "Unknown error"), task.getException());
-                        callback.accept(null);
-                    }
-                });
-    }
-
     public void getBookings(Consumer<List<Booking>> callback) {
         Log.d(TAG, "Attempting to load bookings from Firestore");
-        db.collection("bookings")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        List<Booking> bookings = new ArrayList<>();
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            Booking booking = document.toObject(Booking.class);
-                            Log.d(TAG, "Loaded booking: " + booking.getId());
-                            bookings.add(booking);
-                        }
-                        Log.d(TAG, "Total bookings loaded: " + bookings.size());
-                        callback.accept(bookings);
-                    } else {
-                        Log.e(TAG, "Error getting bookings: " + (task.getException() != null ? task.getException().getMessage() : "Unknown error"), task.getException());
-                        callback.accept(null);
+        db.collection("bookings").get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Booking> bookings = new ArrayList<>();
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        Booking booking = document.toObject(Booking.class);
+                        bookings.add(booking);
+                        Log.d(TAG, "Loaded booking: " + booking.getId());
                     }
+                    Log.d(TAG, "Total bookings loaded: " + bookings.size());
+                    callback.accept(bookings);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error loading bookings: " + e.getMessage(), e);
+                    callback.accept(null);
                 });
     }
 
     public void bookService(Booking booking, Consumer<Boolean> callback) {
-        db.collection("bookings").document(booking.getId())
-                .set(booking)
+        Log.d(TAG, "Attempting to book service: " + booking.getId());
+        db.collection("bookings").document(booking.getId()).set(booking)
                 .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "Booking added successfully: " + booking.getId());
+                    Log.d(TAG, "Service booked successfully: " + booking.getId());
                     callback.accept(true);
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error adding booking: " + e.getMessage(), e);
+                    Log.e(TAG, "Error booking service: " + e.getMessage(), e);
                     callback.accept(false);
                 });
     }
 
+    public void getNotifications(Consumer<List<Notification>> callback) {
+        Log.d(TAG, "Attempting to load notifications from Firestore");
+        db.collection("notifications").get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Notification> notifications = new ArrayList<>();
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        Notification notification = document.toObject(Notification.class);
+                        notifications.add(notification);
+                        Log.d(TAG, "Loaded notification: " + notification.getId());
+                    }
+                    Log.d(TAG, "Total notifications loaded: " + notifications.size());
+                    callback.accept(notifications);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error loading notifications: " + e.getMessage(), e);
+                    callback.accept(null);
+                });
+    }
+
+    public void sendNotificationToAllResidents(Notification notification, Consumer<Boolean> callback) {
+        Log.d(TAG, "Attempting to send notification to all residents: " + notification.getId());
+        db.collection("users")
+                .whereEqualTo("role", "resident")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        Log.w(TAG, "No residents found");
+                        callback.accept(false);
+                        return;
+                    }
+
+                    List<String> residentIds = new ArrayList<>();
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        residentIds.add(document.getId());
+                    }
+
+                    List<Notification> notificationsToAdd = new ArrayList<>();
+                    for (String residentId : residentIds) {
+                        Notification residentNotification = new Notification(
+                                notification.getId() + "_" + residentId,
+                                notification.getTitle(),
+                                notification.getMessage()
+                        );
+                        residentNotification.setResidentId(residentId);
+                        notificationsToAdd.add(residentNotification);
+                    }
+
+                    int[] successCount = {0};
+                    int total = notificationsToAdd.size();
+                    for (Notification notif : notificationsToAdd) {
+                        db.collection("notifications").document(notif.getId()).set(notif)
+                                .addOnSuccessListener(aVoid -> {
+                                    successCount[0]++;
+                                    if (successCount[0] == total) {
+                                        Log.d(TAG, "Sent notification to all residents successfully");
+                                        callback.accept(true);
+                                    }
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e(TAG, "Error sending notification to resident: " + notif.getResidentId() + ", " + e.getMessage(), e);
+                                    callback.accept(false);
+                                });
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error fetching residents: " + e.getMessage(), e);
+                    callback.accept(false);
+                });
+    }
+
+    public void sendNotificationToApartment(Notification notification, String apartmentId, Consumer<Boolean> callback) {
+        Log.d(TAG, "Attempting to send notification to apartment: " + apartmentId);
+        db.collection("apartments")
+                .whereEqualTo("id", apartmentId)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        Log.w(TAG, "Apartment not found: " + apartmentId);
+                        callback.accept(false);
+                        return;
+                    }
+
+                    QueryDocumentSnapshot document = queryDocumentSnapshots.iterator().next();
+                    Apartment apartment = document.toObject(Apartment.class);
+                    String residentId = apartment.getResidentId();
+
+                    if (residentId == null || residentId.isEmpty()) {
+                        Log.w(TAG, "No resident found for apartment: " + apartmentId);
+                        callback.accept(false);
+                        return;
+                    }
+
+                    Notification residentNotification = new Notification(
+                            notification.getId() + "_" + residentId,
+                            notification.getTitle(),
+                            notification.getMessage()
+                    );
+                    residentNotification.setResidentId(residentId);
+
+                    db.collection("notifications").document(residentNotification.getId()).set(residentNotification)
+                            .addOnSuccessListener(aVoid -> {
+                                Log.d(TAG, "Sent notification to resident " + residentId + " of apartment " + apartmentId);
+                                callback.accept(true);
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.e(TAG, "Error sending notification to resident: " + residentId + ", " + e.getMessage(), e);
+                                callback.accept(false);
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error fetching apartment: " + e.getMessage(), e);
+                    callback.accept(false);
+                });
+    }
+
+    public void getRequests(Consumer<List<Request>> callback) {
+        Log.d(TAG, "Attempting to load requests from Firestore");
+        db.collection("requests").get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Request> requests = new ArrayList<>();
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        Request request = document.toObject(Request.class);
+                        requests.add(request);
+                        Log.d(TAG, "Loaded request: " + request.getId());
+                    }
+                    Log.d(TAG, "Total requests loaded: " + requests.size());
+                    callback.accept(requests);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error loading requests: " + e.getMessage(), e);
+                    callback.accept(null);
+                });
+    }
+
     public void addRequest(Request request, Consumer<Boolean> callback) {
-        db.collection("requests").document(request.getId())
-                .set(request)
+        Log.d(TAG, "Attempting to add request: " + request.getId());
+        db.collection("requests").document(request.getId()).set(request)
                 .addOnSuccessListener(aVoid -> {
                     Log.d(TAG, "Request added successfully: " + request.getId());
                     callback.accept(true);
@@ -232,30 +342,9 @@ public class FirebaseService {
                 });
     }
 
-    public void getRequests(Consumer<List<Request>> callback) {
-        Log.d(TAG, "Attempting to load requests from Firestore");
-        db.collection("requests")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        List<Request> requests = new ArrayList<>();
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            Request request = document.toObject(Request.class);
-                            Log.d(TAG, "Loaded request: " + request.getId());
-                            requests.add(request);
-                        }
-                        Log.d(TAG, "Total requests loaded: " + requests.size());
-                        callback.accept(requests);
-                    } else {
-                        Log.e(TAG, "Error getting requests: " + (task.getException() != null ? task.getException().getMessage() : "Unknown error"), task.getException());
-                        callback.accept(null);
-                    }
-                });
-    }
-
     public void updateRequest(Request request, Consumer<Boolean> callback) {
-        db.collection("requests").document(request.getId())
-                .set(request)
+        Log.d(TAG, "Attempting to update request: " + request.getId());
+        db.collection("requests").document(request.getId()).set(request)
                 .addOnSuccessListener(aVoid -> {
                     Log.d(TAG, "Request updated successfully: " + request.getId());
                     callback.accept(true);
@@ -263,40 +352,6 @@ public class FirebaseService {
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error updating request: " + e.getMessage(), e);
                     callback.accept(false);
-                });
-    }
-
-    public void addNotification(Notification notification, Consumer<Boolean> callback) {
-        db.collection("notifications").document(notification.getId())
-                .set(notification)
-                .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "Notification added successfully: " + notification.getId());
-                    callback.accept(true);
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error adding notification: " + e.getMessage(), e);
-                    callback.accept(false);
-                });
-    }
-
-    public void getNotifications(Consumer<List<Notification>> callback) {
-        Log.d(TAG, "Attempting to load notifications from Firestore");
-        db.collection("notifications")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        List<Notification> notifications = new ArrayList<>();
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            Notification notification = document.toObject(Notification.class);
-                            Log.d(TAG, "Loaded notification: " + notification.getId());
-                            notifications.add(notification);
-                        }
-                        Log.d(TAG, "Total notifications loaded: " + notifications.size());
-                        callback.accept(notifications);
-                    } else {
-                        Log.e(TAG, "Error getting notifications: " + (task.getException() != null ? task.getException().getMessage() : "Unknown error"), task.getException());
-                        callback.accept(null);
-                    }
                 });
     }
 }

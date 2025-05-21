@@ -201,7 +201,7 @@ public class ServiceFragment extends Fragment {
                 return;
             }
 
-            String serviceId = name.toLowerCase(); // Không thêm tiền tố "service_", sử dụng tên làm ID
+            String serviceId = name.toLowerCase();
             Service service = new Service(serviceId, name, description, details, price, capacity);
             firebaseService.addService(service, success -> {
                 if (success) {
@@ -227,77 +227,90 @@ public class ServiceFragment extends Fragment {
     }
 
     private void showServiceDetailsDialog(Service service) {
-        Dialog dialog = new Dialog(requireContext(), R.style.CustomDialog);
-        dialog.setContentView(R.layout.dialog_book_service);
+        try {
+            Dialog dialog = new Dialog(requireContext(), R.style.CustomDialog);
+            dialog.setContentView(R.layout.dialog_book_service);
 
-        Window window = dialog.getWindow();
-        if (window != null) {
-            WindowManager.LayoutParams params = window.getAttributes();
-            params.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.95);
-            window.setAttributes(params);
-        }
+            Window window = dialog.getWindow();
+            if (window != null) {
+                WindowManager.LayoutParams params = window.getAttributes();
+                params.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.95);
+                window.setAttributes(params);
+            }
 
-        TextView serviceName = dialog.findViewById(R.id.service_name);
-        TextView servicePrice = dialog.findViewById(R.id.service_price);
-        TextInputEditText dateInput = dialog.findViewById(R.id.booking_date_input);
-        MaterialButton bookButton = dialog.findViewById(R.id.book_button);
-        MaterialButton cancelButton = dialog.findViewById(R.id.cancel_button);
+            TextView serviceName = dialog.findViewById(R.id.service_name);
+            TextView servicePrice = dialog.findViewById(R.id.service_price);
+            TextInputEditText dateInput = dialog.findViewById(R.id.booking_date_input);
+            MaterialButton bookButton = dialog.findViewById(R.id.book_button);
+            MaterialButton cancelButton = dialog.findViewById(R.id.cancel_button);
 
-        serviceName.setText("Dịch vụ: " + service.getName());
-        servicePrice.setText("Giá: " + String.format("%.2f", service.getPrice()) + "\nMô tả: " + service.getDescription() + "\nChi tiết: " + service.getDetails() + "\nSức chứa: " + service.getCapacity());
+            // Kiểm tra null và gán giá trị mặc định
+            String name = service.getName() != null ? service.getName() : "Không xác định";
+            String description = service.getDescription() != null ? service.getDescription() : "Không có mô tả";
+            String details = service.getDetails() != null ? service.getDetails() : "Không có chi tiết";
 
-        if ("resident".equals(userRole)) {
-            bookButton.setVisibility(View.VISIBLE);
-            bookButton.setOnClickListener(v -> {
-                String date = dateInput.getText().toString().trim();
-                if (date.isEmpty()) {
-                    Toast.makeText(getContext(), "Vui lòng nhập ngày đặt", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+            serviceName.setText("Dịch vụ: " + name);
+            servicePrice.setText("Giá: " + String.format("%.2f", service.getPrice()) +
+                    "\nMô tả: " + description +
+                    "\nChi tiết: " + details +
+                    "\nSức chứa: " + service.getCapacity());
 
-                String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                Booking booking = new Booking(
-                        UUID.randomUUID().toString(),
-                        service.getId(),
-                        userId,
-                        date,
-                        "unpaid",
-                        "pending"
-                );
-                firebaseService.bookService(booking, success -> {
-                    if (success) {
-                        Toast.makeText(getContext(), "Đặt dịch vụ thành công", Toast.LENGTH_SHORT).show();
-                        dialog.dismiss();
-                        // Cập nhật lại danh sách đặt dịch vụ
-                        progressBar.setVisibility(View.VISIBLE);
-                        bookingsRecyclerView.setVisibility(View.GONE);
-                        firebaseService.getBookings(bookings -> {
-                            List<Booking> filteredBookings = new ArrayList<>();
-                            if ("resident".equals(userRole)) {
-                                for (Booking b : bookings) {
-                                    if (b.getUserId().equals(userId)) {
-                                        filteredBookings.add(b);
-                                    }
-                                }
-                            } else {
-                                filteredBookings.addAll(bookings);
-                            }
-                            bookingAdapter = new BookingAdapter(filteredBookings);
-                            bookingsRecyclerView.setAdapter(bookingAdapter);
-                            progressBar.setVisibility(View.GONE);
-                            bookingsRecyclerView.setVisibility(View.VISIBLE);
-                        });
-                    } else {
-                        Toast.makeText(getContext(), "Đặt dịch vụ thất bại", Toast.LENGTH_SHORT).show();
+            if ("resident".equals(userRole)) {
+                bookButton.setVisibility(View.VISIBLE);
+                bookButton.setOnClickListener(v -> {
+                    String date = dateInput.getText().toString().trim();
+                    if (date.isEmpty()) {
+                        Toast.makeText(getContext(), "Vui lòng nhập ngày đặt", Toast.LENGTH_SHORT).show();
+                        return;
                     }
-                });
-            });
-        } else {
-            bookButton.setVisibility(View.GONE);
-            dateInput.setVisibility(View.GONE);
-        }
 
-        cancelButton.setOnClickListener(v -> dialog.dismiss());
-        dialog.show();
+                    String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                    Booking booking = new Booking(
+                            UUID.randomUUID().toString(),
+                            service.getId(),
+                            userId,
+                            date,
+                            "unpaid",
+                            "pending"
+                    );
+                    firebaseService.bookService(booking, success -> {
+                        if (success) {
+                            Toast.makeText(getContext(), "Đặt dịch vụ thành công", Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                            // Cập nhật lại danh sách đặt dịch vụ
+                            progressBar.setVisibility(View.VISIBLE);
+                            bookingsRecyclerView.setVisibility(View.GONE);
+                            firebaseService.getBookings(bookings -> {
+                                List<Booking> filteredBookings = new ArrayList<>();
+                                if ("resident".equals(userRole)) {
+                                    for (Booking b : bookings) {
+                                        if (b.getUserId().equals(userId)) {
+                                            filteredBookings.add(b);
+                                        }
+                                    }
+                                } else {
+                                    filteredBookings.addAll(bookings);
+                                }
+                                bookingAdapter = new BookingAdapter(filteredBookings);
+                                bookingsRecyclerView.setAdapter(bookingAdapter);
+                                progressBar.setVisibility(View.GONE);
+                                bookingsRecyclerView.setVisibility(View.VISIBLE);
+                            });
+                        } else {
+                            Toast.makeText(getContext(), "Đặt dịch vụ thất bại", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                });
+            } else {
+                bookButton.setVisibility(View.GONE);
+                dateInput.setVisibility(View.GONE);
+            }
+
+            cancelButton.setOnClickListener(v -> dialog.dismiss());
+            dialog.show();
+        } catch (Exception e) {
+            Log.e(TAG, "Error showing service details dialog: " + e.getMessage(), e);
+            Toast.makeText(getContext(), "Lỗi khi hiển thị chi tiết dịch vụ", Toast.LENGTH_SHORT).show();
+        }
     }
 }
