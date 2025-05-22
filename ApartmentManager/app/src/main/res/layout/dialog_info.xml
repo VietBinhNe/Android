@@ -6,67 +6,48 @@
     android:layout_height="wrap_content"
     app:cardElevation="8dp"
     app:cardCornerRadius="16dp"
-    app:cardBackgroundColor="@color/white">
+    app:cardBackgroundColor="#F8F8F8">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:padding="24dp">
 
         <TextView
-            android:id="@+id/booking_id"
+            android:id="@+id/info_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="ID Đặt: Không xác định"
-            android:textSize="18sp"
+            android:text="Giới thiệu"
+            android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="@color/colorPrimary"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"/>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
         <TextView
-            android:id="@+id/service_name"
-            android:layout_width="wrap_content"
+            android:id="@+id/info_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Dịch vụ: Không xác định"
+            android:text="Chào mừng bạn đến với 2B Apartment! Chúng tôi cung cấp dịch vụ quản lý chung cư hiện đại, tiện lợi, giúp cư dân dễ dàng quản lý hóa đơn, đặt dịch vụ, và gửi yêu cầu. Với giao diện thân thiện và hỗ trợ 24/7, 2B Apartment mang đến trải nghiệm sống thoải mái và an toàn."
             android:textSize="16sp"
             android:textColor="@android:color/black"
-            app:layout_constraintTop_toBottomOf="@id/booking_id"
+            app:layout_constraintTop_toBottomOf="@id/info_title"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="8dp"/>
-
-        <TextView
-            android:id="@+id/booking_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Ngày đặt: Không xác định"
-            android:textSize="16sp"
-            android:textColor="@android:color/black"
-            app:layout_constraintTop_toBottomOf="@id/service_name"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="8dp"/>
-
-        <TextView
-            android:id="@+id/booking_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Trạng thái: Không xác định"
-            android:textSize="16sp"
-            android:textColor="@android:color/black"
-            app:layout_constraintTop_toBottomOf="@id/booking_date"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="8dp"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="16dp"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/close_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Đóng"
-            app:layout_constraintTop_toBottomOf="@id/booking_status"
+            android:textColor="@color/colorAccent"
+            app:layout_constraintTop_toBottomOf="@id/info_content"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="16dp"
             style="@style/Widget.Material3.Button.TextButton"
             app:backgroundTint="@android:color/transparent"
-            android:textColor="@color/colorAccent"/>
+            app:cornerRadius="8dp"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

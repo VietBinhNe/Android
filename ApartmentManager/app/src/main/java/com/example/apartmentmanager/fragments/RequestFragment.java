@@ -29,62 +29,81 @@ import java.util.UUID;
 public class RequestFragment extends Fragment {
     private static final String TAG = "RequestFragment";
     private RecyclerView recyclerView;
+    private View progressBar;
     private RequestAdapter requestAdapter;
     private FirebaseService firebaseService;
-    private String userRole;
     private FloatingActionButton addRequestFab;
+    private String userRole;
+    private List<Request> requestList;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.d(TAG, "Creating RequestFragment view");
         View view = inflater.inflate(R.layout.fragment_request, container, false);
 
-        // Lấy userRole từ arguments (nếu có), hoặc từ intent (tạm thời giữ lại để tương thích)
-        if (getArguments() != null) {
-            userRole = getArguments().getString("userRole");
-        } else {
-            userRole = requireActivity().getIntent().getStringExtra("userRole");
+        recyclerView = view.findViewById(R.id.request_recycler_view);
+        progressBar = view.findViewById(R.id.progress_bar);
+        addRequestFab = view.findViewById(R.id.add_request_fab);
+        Log.d(TAG, "Views initialized: recyclerView=" + (recyclerView != null) + ", addRequestFab=" + (addRequestFab != null));
+
+        if (recyclerView == null || progressBar == null || addRequestFab == null) {
+            Log.e(TAG, "One or more views are null");
+            Toast.makeText(getContext(), "Lỗi giao diện", Toast.LENGTH_SHORT).show();
+            return view;
         }
 
-        recyclerView = view.findViewById(R.id.request_recycler_view);
-        addRequestFab = view.findViewById(R.id.add_request_fab);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
         firebaseService = new FirebaseService();
+        userRole = getArguments() != null ? getArguments().getString("userRole") : "resident";
+        Log.d(TAG, "User role: " + userRole);
 
-        if ("admin".equals(userRole)) {
-            addRequestFab.setVisibility(View.GONE);
-            firebaseService.getRequests(requests -> {
-                requestAdapter = new RequestAdapter(requests, this::showRequestDetailsDialog);
-                recyclerView.setAdapter(requestAdapter);
-            });
-        } else {
+        progressBar.setVisibility(View.VISIBLE);
+        recyclerView.setVisibility(View.GONE);
+
+        requestList = new ArrayList<>();
+        requestAdapter = new RequestAdapter(requestList);
+        recyclerView.setAdapter(requestAdapter);
+
+        if ("resident".equals(userRole)) {
             addRequestFab.setVisibility(View.VISIBLE);
             addRequestFab.setOnClickListener(v -> showAddRequestDialog());
-            String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-            Log.d(TAG, "Loading requests for user: " + userId);
-            firebaseService.getRequests(requests -> {
-                List<Request> filteredRequests = new ArrayList<>();
-                for (Request request : requests) {
-                    Log.d(TAG, "Request: " + request.getTitle() + ", User ID: " + request.getUserId());
-                    if (request.getUserId().equals(userId)) {
-                        filteredRequests.add(request);
-                    }
-                }
-                Log.d(TAG, "Filtered requests count: " + filteredRequests.size());
-                requestAdapter = new RequestAdapter(filteredRequests);
-                recyclerView.setAdapter(requestAdapter);
-            });
+            Log.d(TAG, "Add request FAB set to VISIBLE for resident");
+        } else {
+            addRequestFab.setVisibility(View.GONE);
+            Log.d(TAG, "Add request FAB set to GONE for admin");
         }
+
+        loadRequests();
 
         return view;
     }
 
+    private void loadRequests() {
+        Log.d(TAG, "Loading requests");
+        progressBar.setVisibility(View.VISIBLE);
+        recyclerView.setVisibility(View.GONE);
+        firebaseService.getRequests(requests -> {
+            requestList.clear();
+            if (requests == null || requests.isEmpty()) {
+                Log.e(TAG, "No requests found");
+                Toast.makeText(getContext(), "Không có yêu cầu nào", Toast.LENGTH_SHORT).show();
+                progressBar.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
+                return;
+            }
+            Log.d(TAG, "Total requests loaded: " + requests.size());
+            requestList.addAll(requests);
+            requestAdapter.notifyDataSetChanged();
+            progressBar.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        });
+    }
+
     private void showAddRequestDialog() {
         try {
-            Dialog dialog = new Dialog(requireContext());
+            Dialog dialog = new Dialog(requireContext(), R.style.CustomDialog);
             dialog.setContentView(R.layout.dialog_add_request);
 
-            // Tùy chỉnh chiều ngang dialog
             Window window = dialog.getWindow();
             if (window != null) {
                 WindowManager.LayoutParams params = window.getAttributes();
@@ -92,35 +111,37 @@ public class RequestFragment extends Fragment {
                 window.setAttributes(params);
             }
 
-            TextInputEditText titleEditText = dialog.findViewById(R.id.request_title_input);
-            TextInputEditText descriptionEditText = dialog.findViewById(R.id.request_description_input);
-            TextInputEditText dateEditText = dialog.findViewById(R.id.request_date_input);
-            MaterialButton sendButton = dialog.findViewById(R.id.send_button);
+            TextView dialogTitle = dialog.findViewById(R.id.dialog_title);
+            TextInputEditText titleInput = dialog.findViewById(R.id.request_title_input);
+            TextInputEditText contentInput = dialog.findViewById(R.id.request_content_input);
+            MaterialButton addButton = dialog.findViewById(R.id.add_button);
             MaterialButton cancelButton = dialog.findViewById(R.id.cancel_button);
 
-            if (titleEditText == null || descriptionEditText == null || dateEditText == null ||
-                    sendButton == null || cancelButton == null) {
-                Log.e(TAG, "showAddRequestDialog: One or more views in dialog are null");
-                Toast.makeText(getContext(), "Lỗi giao diện: Không tìm thấy view", Toast.LENGTH_LONG).show();
+            if (dialogTitle == null || titleInput == null || contentInput == null ||
+                    addButton == null || cancelButton == null) {
+                Log.e(TAG, "One or more views in dialog_add_request are null");
+                Toast.makeText(getContext(), "Lỗi giao diện", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            sendButton.setOnClickListener(v -> {
-                String title = titleEditText.getText().toString().trim();
-                String description = descriptionEditText.getText().toString().trim();
-                String date = dateEditText.getText().toString().trim();
+            dialogTitle.setText("Thêm yêu cầu");
 
-                if (title.isEmpty() || description.isEmpty() || date.isEmpty()) {
+            addButton.setOnClickListener(v -> {
+                String title = titleInput.getText().toString().trim();
+                String content = contentInput.getText().toString().trim();
+
+                if (title.isEmpty() || content.isEmpty()) {
                     Toast.makeText(getContext(), "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                Request request = new Request(UUID.randomUUID().toString(), title, description, date, "pending", userId);
+                String requestId = UUID.randomUUID().toString();
+                Request request = new Request(requestId, title, content, FirebaseAuth.getInstance().getCurrentUser().getUid());
                 firebaseService.addRequest(request, success -> {
                     if (success) {
                         Toast.makeText(getContext(), "Gửi yêu cầu thành công", Toast.LENGTH_SHORT).show();
                         dialog.dismiss();
+                        loadRequests();
                     } else {
                         Toast.makeText(getContext(), "Gửi yêu cầu thất bại", Toast.LENGTH_SHORT).show();
                     }
@@ -130,64 +151,8 @@ public class RequestFragment extends Fragment {
             cancelButton.setOnClickListener(v -> dialog.dismiss());
             dialog.show();
         } catch (Exception e) {
-            Log.e(TAG, "showAddRequestDialog: Error showing dialog", e);
-            Toast.makeText(getContext(), "Lỗi: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Log.e(TAG, "Error showing add request dialog: " + e.getMessage(), e);
+            Toast.makeText(getContext(), "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private void showRequestDetailsDialog(Request request) {
-        Dialog dialog = new Dialog(requireContext(), R.style.CustomDialog);
-        dialog.setContentView(R.layout.dialog_request_details);
-
-        // Tùy chỉnh chiều ngang dialog
-        Window window = dialog.getWindow();
-        if (window != null) {
-            WindowManager.LayoutParams params = window.getAttributes();
-            params.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.95);
-            window.setAttributes(params);
-        }
-
-        TextView titleTextView = dialog.findViewById(R.id.request_title);
-        TextView descriptionTextView = dialog.findViewById(R.id.request_description);
-        TextView dateTextView = dialog.findViewById(R.id.request_date);
-        TextView statusTextView = dialog.findViewById(R.id.request_status);
-        TextView userIdTextView = dialog.findViewById(R.id.user_id);
-        MaterialButton resolveButton = dialog.findViewById(R.id.resolve_button);
-        MaterialButton closeButton = dialog.findViewById(R.id.close_button);
-
-        titleTextView.setText("Tiêu đề: " + request.getTitle());
-        descriptionTextView.setText("Mô tả: " + request.getDescription());
-        dateTextView.setText("Ngày gửi: " + request.getDate());
-        statusTextView.setText("Trạng thái: " + request.getStatus());
-        userIdTextView.setText("Người gửi: " + request.getUserId());
-
-        // Đặt màu cho trạng thái trong dialog
-        if ("pending".equals(request.getStatus())) {
-            statusTextView.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
-        } else if ("completed".equals(request.getStatus())) {
-            statusTextView.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
-        }
-
-        // Ẩn nút "Đã giải quyết" nếu trạng thái đã là "completed"
-        resolveButton.setVisibility("pending".equals(request.getStatus()) ? View.VISIBLE : View.GONE);
-        resolveButton.setOnClickListener(v -> {
-            request.setStatus("completed");
-            firebaseService.updateRequest(request, success -> {
-                if (success) {
-                    Toast.makeText(getContext(), "Yêu cầu đã được giải quyết", Toast.LENGTH_SHORT).show();
-                    dialog.dismiss();
-                    // Cập nhật lại danh sách yêu cầu
-                    firebaseService.getRequests(requests -> {
-                        requestAdapter = new RequestAdapter(requests, this::showRequestDetailsDialog);
-                        recyclerView.setAdapter(requestAdapter);
-                    });
-                } else {
-                    Toast.makeText(getContext(), "Cập nhật trạng thái thất bại", Toast.LENGTH_SHORT).show();
-                }
-            });
-        });
-
-        closeButton.setOnClickListener(v -> dialog.dismiss());
-        dialog.show();
     }
 }

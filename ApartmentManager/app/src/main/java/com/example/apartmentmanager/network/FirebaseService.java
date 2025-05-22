@@ -194,23 +194,45 @@ public class FirebaseService {
                 });
     }
 
-    public void getNotifications(Consumer<List<Notification>> callback) {
-        Log.d(TAG, "Attempting to load notifications from Firestore");
-        db.collection("notifications").get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    List<Notification> notifications = new ArrayList<>();
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        Notification notification = document.toObject(Notification.class);
-                        notifications.add(notification);
-                        Log.d(TAG, "Loaded notification: " + notification.getId());
-                    }
-                    Log.d(TAG, "Total notifications loaded: " + notifications.size());
-                    callback.accept(notifications);
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error loading notifications: " + e.getMessage(), e);
-                    callback.accept(null);
-                });
+    public void getNotifications(String userId, String userRole, Consumer<List<Notification>> callback) {
+        Log.d(TAG, "Attempting to load notifications for user: " + userId + ", role: " + userRole);
+        if ("admin".equals(userRole)) {
+            // Admin lấy tất cả thông báo
+            db.collection("notifications").get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        List<Notification> notifications = new ArrayList<>();
+                        for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                            Notification notification = document.toObject(Notification.class);
+                            notifications.add(notification);
+                            Log.d(TAG, "Loaded notification: " + notification.getId());
+                        }
+                        Log.d(TAG, "Total notifications loaded for admin: " + notifications.size());
+                        callback.accept(notifications);
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e(TAG, "Error loading notifications: " + e.getMessage(), e);
+                        callback.accept(null);
+                    });
+        } else {
+            // Resident chỉ lấy thông báo theo residentId
+            db.collection("notifications")
+                    .whereEqualTo("residentId", userId)
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        List<Notification> notifications = new ArrayList<>();
+                        for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                            Notification notification = document.toObject(Notification.class);
+                            notifications.add(notification);
+                            Log.d(TAG, "Loaded notification: " + notification.getId());
+                        }
+                        Log.d(TAG, "Total notifications loaded for user " + userId + ": " + notifications.size());
+                        callback.accept(notifications);
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e(TAG, "Error loading notifications: " + e.getMessage(), e);
+                        callback.accept(null);
+                    });
+        }
     }
 
     public void sendNotificationToAllResidents(Notification notification, Consumer<Boolean> callback) {
@@ -238,6 +260,7 @@ public class FirebaseService {
                                 notification.getMessage()
                         );
                         residentNotification.setResidentId(residentId);
+                        residentNotification.setDate(notification.getDate());
                         notificationsToAdd.add(residentNotification);
                     }
 
@@ -293,6 +316,7 @@ public class FirebaseService {
                             notification.getMessage()
                     );
                     residentNotification.setResidentId(residentId);
+                    residentNotification.setDate(notification.getDate());
 
                     db.collection("notifications").document(residentNotification.getId()).set(residentNotification)
                             .addOnSuccessListener(aVoid -> {
@@ -352,6 +376,25 @@ public class FirebaseService {
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error updating request: " + e.getMessage(), e);
                     callback.accept(false);
+                });
+    }
+
+    public void getAllUsers(Consumer<List<User>> callback) {
+        Log.d(TAG, "Attempting to load all users");
+        db.collection("users").get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<User> users = new ArrayList<>();
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        User user = document.toObject(User.class);
+                        users.add(user);
+                        Log.d(TAG, "Loaded user: " + user.getId());
+                    }
+                    Log.d(TAG, "Total users loaded: " + users.size());
+                    callback.accept(users);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error loading users: " + e.getMessage(), e);
+                    callback.accept(null);
                 });
     }
 }

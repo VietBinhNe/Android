@@ -13,15 +13,19 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.apartmentmanager.R;
 import com.example.apartmentmanager.adapters.NotificationAdapter;
 import com.example.apartmentmanager.models.Notification;
 import com.example.apartmentmanager.network.FirebaseService;
+import com.example.apartmentmanager.viewmodels.NotificationViewModel;
+import com.example.apartmentmanager.viewmodels.NotificationViewModelFactory;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -39,56 +43,71 @@ public class NotificationFragment extends Fragment {
     private FloatingActionButton addNotificationFab;
     private String userRole;
     private List<Notification> notificationList;
+    private NotificationViewModel viewModel;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.d(TAG, "Inflated layout for NotificationFragment");
-        View view = inflater.inflate(R.layout.fragment_notification, container, false);
+        Log.d(TAG, "Creating NotificationFragment view");
+        View view = null;
+        try {
+            view = inflater.inflate(R.layout.fragment_notification, container, false);
+            recyclerView = view.findViewById(R.id.notification_recycler_view);
+            progressBar = view.findViewById(R.id.progress_bar);
+            addNotificationFab = view.findViewById(R.id.add_notification_fab);
+            Log.d(TAG, "Views initialized: recyclerView=" + (recyclerView != null) + ", progressBar=" + (progressBar != null) + ", addNotificationFab=" + (addNotificationFab != null));
 
-        recyclerView = view.findViewById(R.id.notification_recycler_view);
-        progressBar = view.findViewById(R.id.progress_bar);
-        addNotificationFab = view.findViewById(R.id.add_notification_fab);
-        Log.d(TAG, "Views initialized: recyclerView=" + (recyclerView != null) + ", progressBar=" + (progressBar != null) + ", addNotificationFab=" + (addNotificationFab != null));
+            if (recyclerView == null || progressBar == null || addNotificationFab == null) {
+                Log.e(TAG, "One or more views are null");
+                Toast.makeText(getContext(), "Lỗi giao diện", Toast.LENGTH_LONG).show();
+                return view;
+            }
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        firebaseService = new FirebaseService();
-        userRole = getArguments() != null ? getArguments().getString("userRole") : "resident";
-        Log.d(TAG, "User role: " + userRole);
+            recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+            firebaseService = new FirebaseService();
+            userRole = getArguments() != null ? getArguments().getString("userRole") : "resident";
+            Log.d(TAG, "User role: " + userRole);
 
-        progressBar.setVisibility(View.VISIBLE);
-        recyclerView.setVisibility(View.GONE);
+            progressBar.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
 
-        notificationList = new ArrayList<>();
-        notificationAdapter = new NotificationAdapter(notificationList);
-        recyclerView.setAdapter(notificationAdapter);
+            notificationList = new ArrayList<>();
+            notificationAdapter = new NotificationAdapter(notificationList);
+            recyclerView.setAdapter(notificationAdapter);
 
-        if ("admin".equals(userRole)) {
-            addNotificationFab.setVisibility(View.VISIBLE);
-            addNotificationFab.setOnClickListener(v -> showAddNotificationDialog());
-            Log.d(TAG, "Add notification FAB set to VISIBLE for admin");
-        } else {
-            addNotificationFab.setVisibility(View.GONE);
-            Log.d(TAG, "Add notification FAB set to GONE for non-admin");
+            // Initialize ViewModel with userRole
+            NotificationViewModelFactory factory = new NotificationViewModelFactory(userRole);
+            viewModel = new ViewModelProvider(this, factory).get(NotificationViewModel.class);
+            viewModel.getNotifications().observe(getViewLifecycleOwner(), notifications -> {
+                try {
+                    notificationList.clear();
+                    if (notifications == null || notifications.isEmpty()) {
+                        Log.e(TAG, "No notifications found for role: " + userRole);
+                        Toast.makeText(getContext(), "Không có thông báo nào", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Log.d(TAG, "Total notifications loaded: " + notifications.size());
+                        notificationList.addAll(notifications);
+                    }
+                    notificationAdapter.notifyDataSetChanged();
+                    progressBar.setVisibility(View.GONE);
+                    recyclerView.setVisibility(View.VISIBLE);
+                } catch (Exception e) {
+                    Log.e(TAG, "Error observing notifications: " + e.getMessage(), e);
+                    Toast.makeText(getContext(), "Lỗi khi tải thông báo", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            if ("admin".equals(userRole)) {
+                addNotificationFab.setVisibility(View.VISIBLE);
+                addNotificationFab.setOnClickListener(v -> showAddNotificationDialog());
+                Log.d(TAG, "Add notification FAB set to VISIBLE for admin");
+            } else {
+                addNotificationFab.setVisibility(View.GONE);
+                Log.d(TAG, "Add notification FAB set to GONE for non-admin");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error in onCreateView: " + e.getMessage(), e);
+            Toast.makeText(getContext(), "Lỗi khi tải fragment: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
-
-        firebaseService.getNotifications(notifications -> {
-            notificationList.clear();
-            if (notifications == null || notifications.isEmpty()) {
-                Log.e(TAG, "No notifications found");
-                Toast.makeText(getContext(), "Không có thông báo nào", Toast.LENGTH_SHORT).show();
-                progressBar.setVisibility(View.GONE);
-                recyclerView.setVisibility(View.VISIBLE);
-                return;
-            }
-            Log.d(TAG, "Total notifications loaded: " + notifications.size());
-            for (Notification notification : notifications) {
-                Log.d(TAG, "Loaded notification: " + notification.getId());
-            }
-            notificationList.addAll(notifications);
-            notificationAdapter.notifyDataSetChanged();
-            progressBar.setVisibility(View.GONE);
-            recyclerView.setVisibility(View.VISIBLE);
-        });
 
         return view;
     }
@@ -131,61 +150,50 @@ public class NotificationFragment extends Fragment {
             });
 
             addButton.setOnClickListener(v -> {
-                String title = titleInput.getText().toString().trim();
-                String content = contentInput.getText().toString().trim();
+                try {
+                    String title = titleInput.getText().toString().trim();
+                    String content = contentInput.getText().toString().trim();
 
-                if (title.isEmpty() || content.isEmpty()) {
-                    Toast.makeText(getContext(), "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                String notificationId = UUID.randomUUID().toString();
-                Notification notification = new Notification(notificationId, title, content);
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-                notification.setDate(sdf.format(new Date()));
-
-                if (sendToAllOption.isChecked()) {
-                    firebaseService.sendNotificationToAllResidents(notification, success -> {
-                        if (success) {
-                            Toast.makeText(getContext(), "Gửi thông báo đến tất cả cư dân thành công", Toast.LENGTH_SHORT).show();
-                            dialog.dismiss();
-                            progressBar.setVisibility(View.VISIBLE);
-                            recyclerView.setVisibility(View.GONE);
-                            firebaseService.getNotifications(notifications -> {
-                                notificationList.clear();
-                                notificationList.addAll(notifications);
-                                notificationAdapter.notifyDataSetChanged();
-                                progressBar.setVisibility(View.GONE);
-                                recyclerView.setVisibility(View.VISIBLE);
-                            });
-                        } else {
-                            Toast.makeText(getContext(), "Gửi thông báo thất bại", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                } else if (sendToSpecificOption.isChecked()) {
-                    String apartmentId = apartmentIdInput.getText().toString().trim();
-                    if (apartmentId.isEmpty()) {
-                        Toast.makeText(getContext(), "Vui lòng nhập ID phòng", Toast.LENGTH_SHORT).show();
+                    if (title.isEmpty() || content.isEmpty()) {
+                        Toast.makeText(getContext(), "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
-                    firebaseService.sendNotificationToApartment(notification, apartmentId, success -> {
-                        if (success) {
-                            Toast.makeText(getContext(), "Gửi thông báo đến phòng " + apartmentId + " thành công", Toast.LENGTH_SHORT).show();
-                            dialog.dismiss();
-                            progressBar.setVisibility(View.VISIBLE);
-                            recyclerView.setVisibility(View.GONE);
-                            firebaseService.getNotifications(notifications -> {
-                                notificationList.clear();
-                                notificationList.addAll(notifications);
-                                notificationAdapter.notifyDataSetChanged();
-                                progressBar.setVisibility(View.GONE);
-                                recyclerView.setVisibility(View.VISIBLE);
-                            });
-                        } else {
-                            Toast.makeText(getContext(), "Gửi thông báo thất bại. Kiểm tra ID phòng!", Toast.LENGTH_SHORT).show();
+                    String notificationId = UUID.randomUUID().toString();
+                    Notification notification = new Notification(notificationId, title, content);
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                    notification.setDate(sdf.format(new Date()));
+
+                    if (sendToAllOption.isChecked()) {
+                        firebaseService.sendNotificationToAllResidents(notification, success -> {
+                            if (success) {
+                                Toast.makeText(getContext(), "Gửi thông báo đến tất cả cư dân thành công", Toast.LENGTH_SHORT).show();
+                                dialog.dismiss();
+                                viewModel.loadNotifications();
+                            } else {
+                                Toast.makeText(getContext(), "Gửi thông báo thất bại", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    } else if (sendToSpecificOption.isChecked()) {
+                        String apartmentId = apartmentIdInput.getText().toString().trim();
+                        if (apartmentId.isEmpty()) {
+                            Toast.makeText(getContext(), "Vui lòng nhập ID phòng", Toast.LENGTH_SHORT).show();
+                            return;
                         }
-                    });
+
+                        firebaseService.sendNotificationToApartment(notification, apartmentId, success -> {
+                            if (success) {
+                                Toast.makeText(getContext(), "Gửi thông báo đến phòng " + apartmentId + " thành công", Toast.LENGTH_SHORT).show();
+                                dialog.dismiss();
+                                viewModel.loadNotifications();
+                            } else {
+                                Toast.makeText(getContext(), "Gửi thông báo thất bại. Kiểm tra ID phòng!", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Error adding notification: " + e.getMessage(), e);
+                    Toast.makeText(getContext(), "Lỗi khi gửi thông báo", Toast.LENGTH_SHORT).show();
                 }
             });
 

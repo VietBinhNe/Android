@@ -10,13 +10,20 @@ import com.example.apartmentmanager.R;
 import com.example.apartmentmanager.models.Booking;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.ViewHolder> {
     private static final String TAG = "BookingAdapter";
     private List<Booking> bookingList;
+    private Consumer<Booking> onBookingClickListener;
 
     public BookingAdapter(List<Booking> bookingList) {
+        this(bookingList, null);
+    }
+
+    public BookingAdapter(List<Booking> bookingList, Consumer<Booking> onBookingClickListener) {
         this.bookingList = bookingList;
+        this.onBookingClickListener = onBookingClickListener;
         Log.d(TAG, "BookingAdapter initialized with " + bookingList.size() + " bookings");
     }
 
@@ -33,6 +40,12 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.ViewHold
             Log.d(TAG, "Binding booking: " + booking.getId());
             holder.serviceIdTextView.setText("Dịch vụ: " + booking.getServiceId());
             holder.bookingDateTextView.setText("Ngày đặt: " + booking.getBookingDate());
+
+            holder.itemView.setOnClickListener(v -> {
+                if (onBookingClickListener != null) {
+                    onBookingClickListener.accept(booking);
+                }
+            });
         } catch (Exception e) {
             Log.e(TAG, "Error binding booking at position " + position, e);
         }

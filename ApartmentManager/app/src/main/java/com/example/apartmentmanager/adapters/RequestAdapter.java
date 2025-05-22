@@ -1,6 +1,6 @@
 package com.example.apartmentmanager.adapters;
 
-import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,19 +10,14 @@ import com.example.apartmentmanager.R;
 import com.example.apartmentmanager.models.Request;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.ViewHolder> {
+    private static final String TAG = "RequestAdapter";
     private List<Request> requestList;
-    private Consumer<Request> onRequestClickListener;
 
     public RequestAdapter(List<Request> requestList) {
-        this(requestList, null);
-    }
-
-    public RequestAdapter(List<Request> requestList, Consumer<Request> onRequestClickListener) {
         this.requestList = requestList;
-        this.onRequestClickListener = onRequestClickListener;
+        Log.d(TAG, "RequestAdapter initialized with " + requestList.size() + " requests");
     }
 
     @Override
@@ -33,39 +28,31 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Request request = requestList.get(position);
-        holder.titleTextView.setText(request.getTitle());
-        holder.descriptionTextView.setText("Mô tả: " + request.getDescription());
-        holder.dateTextView.setText("Ngày gửi: " + request.getDate());
-        holder.statusTextView.setText("Trạng thái: " + request.getStatus());
-
-        // Đặt màu cho trạng thái
-        if ("pending".equals(request.getStatus())) {
-            holder.statusTextView.setTextColor(Color.RED);
-        } else if ("completed".equals(request.getStatus())) {
-            holder.statusTextView.setTextColor(Color.GREEN);
+        try {
+            Request request = requestList.get(position);
+            Log.d(TAG, "Binding request: " + request.getId());
+            holder.titleTextView.setText("Tiêu đề: " + (request.getTitle() != null ? request.getTitle() : "Không xác định"));
+            holder.descriptionTextView.setText("Mô tả: " + (request.getContent() != null ? request.getContent() : "Không xác định"));
+            holder.statusTextView.setText("Trạng thái: " + (request.getStatus() != null ? request.getStatus() : "Không xác định"));
+        } catch (Exception e) {
+            Log.e(TAG, "Error binding request at position " + position + ": " + e.getMessage(), e);
         }
-
-        holder.itemView.setOnClickListener(v -> {
-            if (onRequestClickListener != null) {
-                onRequestClickListener.accept(request);
-            }
-        });
     }
 
     @Override
     public int getItemCount() {
-        return requestList.size();
+        int count = requestList.size();
+        Log.d(TAG, "getItemCount: " + count);
+        return count;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView titleTextView, descriptionTextView, dateTextView, statusTextView;
+        TextView titleTextView, descriptionTextView, statusTextView;
 
         public ViewHolder(View itemView) {
             super(itemView);
             titleTextView = itemView.findViewById(R.id.request_title);
             descriptionTextView = itemView.findViewById(R.id.request_description);
-            dateTextView = itemView.findViewById(R.id.request_date);
             statusTextView = itemView.findViewById(R.id.request_status);
         }
     }

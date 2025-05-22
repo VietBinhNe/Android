@@ -27,6 +27,9 @@
                 <action
                     android:id="@+id/action_nav_home_to_nav_room_availability"
                     app:destination="@id/nav_room_availability" />
+                <action
+                    android:id="@+id/action_nav_home_to_nav_booking_management"
+                    app:destination="@id/nav_booking_management" />
         </fragment>
         <fragment
             android:id="@+id/nav_room_availability"
@@ -51,6 +54,9 @@
                 <action
                     android:id="@+id/action_nav_room_availability_to_nav_request"
                     app:destination="@id/nav_request" />
+                <action
+                    android:id="@+id/action_nav_room_availability_to_nav_booking_management"
+                    app:destination="@id/nav_booking_management" />
         </fragment>
         <fragment
             android:id="@+id/nav_notification"
@@ -74,6 +80,9 @@
                 <action
                     android:id="@+id/action_nav_notification_to_nav_request"
                     app:destination="@id/nav_request" />
+                <action
+                    android:id="@+id/action_nav_notification_to_nav_booking_management"
+                    app:destination="@id/nav_booking_management" />
         </fragment>
         <fragment
             android:id="@+id/nav_bill"
@@ -95,12 +104,15 @@
                 <action
                     android:id="@+id/action_nav_bill_to_nav_request"
                     app:destination="@id/nav_request" />
+                <action
+                    android:id="@+id/action_nav_bill_to_nav_booking_management"
+                    app:destination="@id/nav_booking_management" />
         </fragment>
         <fragment
             android:id="@+id/nav_resident_management"
-            android:name="com.example.apartmentmanager.fragments.ResidentManagementFragment"
+            android:name="com.example.apartmentmanager.fragments.UserManagementFragment"
             android:label="User"
-            tools:layout="@layout/fragment_resident_management">
+            tools:layout="@layout/fragment_user_management">
                 <action
                     android:id="@+id/action_nav_resident_management_to_nav_home"
                     app:destination="@id/nav_home" />
@@ -116,6 +128,9 @@
                 <action
                     android:id="@+id/action_nav_resident_management_to_nav_request"
                     app:destination="@id/nav_request" />
+                <action
+                    android:id="@+id/action_nav_resident_management_to_nav_booking_management"
+                    app:destination="@id/nav_booking_management" />
         </fragment>
         <fragment
             android:id="@+id/nav_service"
@@ -137,6 +152,9 @@
                 <action
                     android:id="@+id/action_nav_service_to_nav_request"
                     app:destination="@id/nav_request" />
+                <action
+                    android:id="@+id/action_nav_service_to_nav_booking_management"
+                    app:destination="@id/nav_booking_management" />
         </fragment>
         <fragment
             android:id="@+id/nav_request"
@@ -158,5 +176,32 @@
                 <action
                     android:id="@+id/action_nav_request_to_nav_service"
                     app:destination="@id/nav_service" />
+                <action
+                    android:id="@+id/action_nav_request_to_nav_booking_management"
+                    app:destination="@id/nav_booking_management" />
+        </fragment>
+        <fragment
+            android:id="@+id/nav_booking_management"
+            android:name="com.example.apartmentmanager.fragments.BookingManagementFragment"
+            android:label="Booking Management"
+            tools:layout="@layout/fragment_booking_management">
+                <action
+                    android:id="@+id/action_nav_booking_management_to_nav_home"
+                    app:destination="@id/nav_home" />
+                <action
+                    android:id="@+id/action_nav_booking_management_to_nav_notification"
+                    app:destination="@id/nav_notification" />
+                <action
+                    android:id="@+id/action_nav_booking_management_to_nav_bill"
+                    app:destination="@id/nav_bill" />
+                <action
+                    android:id="@+id/action_nav_booking_management_to_nav_resident_management"
+                    app:destination="@id/nav_resident_management" />
+                <action
+                    android:id="@+id/action_nav_booking_management_to_nav_service"
+                    app:destination="@id/nav_service" />
+                <action
+                    android:id="@+id/action_nav_booking_management_to_nav_request"
+                    app:destination="@id/nav_request" />
         </fragment>
 </navigation>

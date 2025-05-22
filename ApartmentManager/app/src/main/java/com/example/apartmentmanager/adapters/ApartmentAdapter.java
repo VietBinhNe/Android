@@ -1,24 +1,27 @@
 package com.example.apartmentmanager.adapters;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.apartmentmanager.R;
 import com.example.apartmentmanager.models.Apartment;
+import com.google.android.material.button.MaterialButton;
 
 import java.util.List;
 import java.util.function.Consumer;
 
 public class ApartmentAdapter extends RecyclerView.Adapter<ApartmentAdapter.ViewHolder> {
+    private static final String TAG = "ApartmentAdapter";
     private List<Apartment> apartmentList;
-    private Consumer<Apartment> onApartmentClickListener;
+    private Consumer<Apartment> onRentRequestClick;
 
-    public ApartmentAdapter(List<Apartment> apartmentList, Consumer<Apartment> onApartmentClickListener) {
+    public ApartmentAdapter(List<Apartment> apartmentList, Consumer<Apartment> onRentRequestClick) {
         this.apartmentList = apartmentList;
-        this.onApartmentClickListener = onApartmentClickListener;
+        this.onRentRequestClick = onRentRequestClick;
+        Log.d(TAG, "ApartmentAdapter initialized with " + apartmentList.size() + " apartments");
     }
 
     @Override
@@ -29,53 +32,38 @@ public class ApartmentAdapter extends RecyclerView.Adapter<ApartmentAdapter.View
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Apartment apartment = apartmentList.get(position);
-        holder.roomNumberTextView.setText("Phòng " + apartment.getNumber());
-        holder.statusTextView.setText("available".equals(apartment.getStatus()) ? "Chưa thuê" : "Đang thuê");
+        try {
+            Apartment apartment = apartmentList.get(position);
+            Log.d(TAG, "Binding apartment: " + apartment.getId());
+            holder.numberTextView.setText("Phòng: " + (apartment.getNumber() != null ? apartment.getNumber() : "Không xác định"));
+            holder.statusTextView.setText("Trạng thái: " + ("available".equals(apartment.getStatus()) ? "Chưa thuê" : "Đang thuê"));
+            holder.priceTextView.setText("Giá: " + String.format("%.2f", apartment.getPrice()));
+            holder.descriptionTextView.setText("Mô tả: " + (apartment.getDescription() != null ? apartment.getDescription() : "Không có mô tả"));
 
-        // Hiển thị hình ảnh dựa trên apartment ID
-        switch (apartment.getId()) {
-            case "apartment101":
-                holder.apartmentImageView.setImageResource(R.drawable.apartment101);
-                break;
-            case "apartment102":
-                holder.apartmentImageView.setImageResource(R.drawable.apartment102);
-                break;
-            case "apartment103":
-                holder.apartmentImageView.setImageResource(R.drawable.apartment103);
-                break;
-            case "apartment201":
-                holder.apartmentImageView.setImageResource(R.drawable.apartment201);
-                break;
-            case "apartment202":
-                holder.apartmentImageView.setImageResource(R.drawable.apartment202);
-                break;
-            default:
-                holder.apartmentImageView.setImageResource(android.R.drawable.ic_menu_info_details); // Hình ảnh mặc định từ Android
-                break;
+            holder.rentButton.setOnClickListener(v -> onRentRequestClick.accept(apartment));
+        } catch (Exception e) {
+            Log.e(TAG, "Error binding apartment at position " + position + ": " + e.getMessage(), e);
         }
-
-        holder.itemView.setOnClickListener(v -> {
-            if (onApartmentClickListener != null) {
-                onApartmentClickListener.accept(apartment);
-            }
-        });
     }
 
     @Override
     public int getItemCount() {
-        return apartmentList.size();
+        int count = apartmentList.size();
+        Log.d(TAG, "getItemCount: " + count);
+        return count;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        ImageView apartmentImageView;
-        TextView roomNumberTextView, statusTextView;
+        TextView numberTextView, statusTextView, priceTextView, descriptionTextView;
+        MaterialButton rentButton;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            apartmentImageView = itemView.findViewById(R.id.apartment_image);
-            roomNumberTextView = itemView.findViewById(R.id.room_number);
-            statusTextView = itemView.findViewById(R.id.status);
+            numberTextView = itemView.findViewById(R.id.apartment_number);
+            statusTextView = itemView.findViewById(R.id.apartment_status);
+            priceTextView = itemView.findViewById(R.id.apartment_price);
+            descriptionTextView = itemView.findViewById(R.id.apartment_description);
+            rentButton = itemView.findViewById(R.id.rent_button);
         }
     }
 }
