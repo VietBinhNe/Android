@@ -23,8 +23,11 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 public class NotificationFragment extends Fragment {
@@ -91,100 +94,106 @@ public class NotificationFragment extends Fragment {
     }
 
     private void showAddNotificationDialog() {
-        Dialog dialog = new Dialog(requireContext());
-        dialog.setContentView(R.layout.dialog_add_notification);
+        try {
+            Dialog dialog = new Dialog(requireContext(), R.style.CustomDialog);
+            dialog.setContentView(R.layout.dialog_add_notification);
 
-        Window window = dialog.getWindow();
-        if (window != null) {
-            WindowManager.LayoutParams params = window.getAttributes();
-            params.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.95);
-            window.setAttributes(params);
-        }
-
-        TextView dialogTitle = dialog.findViewById(R.id.dialog_title);
-        dialogTitle.setText("Thêm thông báo");
-
-        TextInputEditText titleInput = dialog.findViewById(R.id.notification_title_input);
-        TextInputEditText contentInput = dialog.findViewById(R.id.notification_content_input);
-        RadioGroup sendOptionsGroup = dialog.findViewById(R.id.send_options_group);
-        RadioButton sendToAllOption = dialog.findViewById(R.id.send_to_all_option);
-        RadioButton sendToSpecificOption = dialog.findViewById(R.id.send_to_specific_option);
-        TextInputEditText apartmentIdInput = dialog.findViewById(R.id.apartment_id_input);
-        MaterialButton addButton = dialog.findViewById(R.id.add_button);
-        MaterialButton cancelButton = dialog.findViewById(R.id.cancel_button);
-
-        // Ẩn ô nhập apartmentId ban đầu
-        apartmentIdInput.setVisibility(View.GONE);
-
-        // Xử lý khi chọn tùy chọn gửi
-        sendOptionsGroup.setOnCheckedChangeListener((group, checkedId) -> {
-            if (checkedId == R.id.send_to_specific_option) {
-                apartmentIdInput.setVisibility(View.VISIBLE);
-            } else {
-                apartmentIdInput.setVisibility(View.GONE);
+            Window window = dialog.getWindow();
+            if (window != null) {
+                WindowManager.LayoutParams params = window.getAttributes();
+                params.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.95);
+                window.setAttributes(params);
             }
-        });
 
-        addButton.setOnClickListener(v -> {
-            String title = titleInput.getText().toString().trim();
-            String content = contentInput.getText().toString().trim();
+            TextView dialogTitle = dialog.findViewById(R.id.dialog_title);
+            TextInputEditText titleInput = dialog.findViewById(R.id.notification_title_input);
+            TextInputEditText contentInput = dialog.findViewById(R.id.notification_content_input);
+            RadioGroup sendOptionsGroup = dialog.findViewById(R.id.send_options_group);
+            RadioButton sendToAllOption = dialog.findViewById(R.id.send_to_all_option);
+            RadioButton sendToSpecificOption = dialog.findViewById(R.id.send_to_specific_option);
+            TextInputEditText apartmentIdInput = dialog.findViewById(R.id.apartment_id_input);
+            MaterialButton addButton = dialog.findViewById(R.id.add_button);
+            MaterialButton cancelButton = dialog.findViewById(R.id.cancel_button);
 
-            if (title.isEmpty() || content.isEmpty()) {
-                Toast.makeText(getContext(), "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
+            if (dialogTitle == null || titleInput == null || contentInput == null || sendOptionsGroup == null ||
+                    sendToAllOption == null || sendToSpecificOption == null || apartmentIdInput == null ||
+                    addButton == null || cancelButton == null) {
+                Log.e(TAG, "showAddNotificationDialog: One or more views in dialog are null");
+                Toast.makeText(getContext(), "Lỗi giao diện: Không tìm thấy view", Toast.LENGTH_LONG).show();
                 return;
             }
 
-            String notificationId = UUID.randomUUID().toString();
-            Notification notification = new Notification(notificationId, title, content);
+            dialogTitle.setText("Thêm thông báo");
+            apartmentIdInput.setVisibility(View.GONE);
 
-            if (sendToAllOption.isChecked()) {
-                // Gửi đến tất cả resident
-                firebaseService.sendNotificationToAllResidents(notification, success -> {
-                    if (success) {
-                        Toast.makeText(getContext(), "Gửi thông báo đến tất cả resident thành công", Toast.LENGTH_SHORT).show();
-                        dialog.dismiss();
-                        progressBar.setVisibility(View.VISIBLE);
-                        recyclerView.setVisibility(View.GONE);
-                        firebaseService.getNotifications(notifications -> {
-                            notificationList.clear();
-                            notificationList.addAll(notifications);
-                            notificationAdapter.notifyDataSetChanged();
-                            progressBar.setVisibility(View.GONE);
-                            recyclerView.setVisibility(View.VISIBLE);
-                        });
-                    } else {
-                        Toast.makeText(getContext(), "Gửi thông báo thất bại", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            } else if (sendToSpecificOption.isChecked()) {
-                // Gửi đến phòng cụ thể
-                String apartmentId = apartmentIdInput.getText().toString().trim();
-                if (apartmentId.isEmpty()) {
-                    Toast.makeText(getContext(), "Vui lòng nhập ID phòng", Toast.LENGTH_SHORT).show();
+            sendOptionsGroup.setOnCheckedChangeListener((group, checkedId) -> {
+                apartmentIdInput.setVisibility(checkedId == R.id.send_to_specific_option ? View.VISIBLE : View.GONE);
+            });
+
+            addButton.setOnClickListener(v -> {
+                String title = titleInput.getText().toString().trim();
+                String content = contentInput.getText().toString().trim();
+
+                if (title.isEmpty() || content.isEmpty()) {
+                    Toast.makeText(getContext(), "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                firebaseService.sendNotificationToApartment(notification, apartmentId, success -> {
-                    if (success) {
-                        Toast.makeText(getContext(), "Gửi thông báo đến phòng " + apartmentId + " thành công", Toast.LENGTH_SHORT).show();
-                        dialog.dismiss();
-                        progressBar.setVisibility(View.VISIBLE);
-                        recyclerView.setVisibility(View.GONE);
-                        firebaseService.getNotifications(notifications -> {
-                            notificationList.clear();
-                            notificationList.addAll(notifications);
-                            notificationAdapter.notifyDataSetChanged();
-                            progressBar.setVisibility(View.GONE);
-                            recyclerView.setVisibility(View.VISIBLE);
-                        });
-                    } else {
-                        Toast.makeText(getContext(), "Gửi thông báo thất bại. Kiểm tra ID phòng!", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        });
+                String notificationId = UUID.randomUUID().toString();
+                Notification notification = new Notification(notificationId, title, content);
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                notification.setDate(sdf.format(new Date()));
 
-        cancelButton.setOnClickListener(v -> dialog.dismiss());
-        dialog.show();
+                if (sendToAllOption.isChecked()) {
+                    firebaseService.sendNotificationToAllResidents(notification, success -> {
+                        if (success) {
+                            Toast.makeText(getContext(), "Gửi thông báo đến tất cả cư dân thành công", Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                            progressBar.setVisibility(View.VISIBLE);
+                            recyclerView.setVisibility(View.GONE);
+                            firebaseService.getNotifications(notifications -> {
+                                notificationList.clear();
+                                notificationList.addAll(notifications);
+                                notificationAdapter.notifyDataSetChanged();
+                                progressBar.setVisibility(View.GONE);
+                                recyclerView.setVisibility(View.VISIBLE);
+                            });
+                        } else {
+                            Toast.makeText(getContext(), "Gửi thông báo thất bại", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else if (sendToSpecificOption.isChecked()) {
+                    String apartmentId = apartmentIdInput.getText().toString().trim();
+                    if (apartmentId.isEmpty()) {
+                        Toast.makeText(getContext(), "Vui lòng nhập ID phòng", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    firebaseService.sendNotificationToApartment(notification, apartmentId, success -> {
+                        if (success) {
+                            Toast.makeText(getContext(), "Gửi thông báo đến phòng " + apartmentId + " thành công", Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                            progressBar.setVisibility(View.VISIBLE);
+                            recyclerView.setVisibility(View.GONE);
+                            firebaseService.getNotifications(notifications -> {
+                                notificationList.clear();
+                                notificationList.addAll(notifications);
+                                notificationAdapter.notifyDataSetChanged();
+                                progressBar.setVisibility(View.GONE);
+                                recyclerView.setVisibility(View.VISIBLE);
+                            });
+                        } else {
+                            Toast.makeText(getContext(), "Gửi thông báo thất bại. Kiểm tra ID phòng!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            });
+
+            cancelButton.setOnClickListener(v -> dialog.dismiss());
+            dialog.show();
+        } catch (Exception e) {
+            Log.e(TAG, "showAddNotificationDialog: Error showing dialog", e);
+            Toast.makeText(getContext(), "Lỗi: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 }

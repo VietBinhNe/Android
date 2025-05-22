@@ -58,12 +58,10 @@ public class ServiceFragment extends Fragment {
             userRole = getArguments() != null ? getArguments().getString("userRole") : "resident";
             Log.d(TAG, "User role: " + userRole);
 
-            // Hiển thị ProgressBar khi tải dữ liệu
             progressBar.setVisibility(View.VISIBLE);
             servicesRecyclerView.setVisibility(View.GONE);
             bookingsRecyclerView.setVisibility(View.GONE);
 
-            // Hiển thị FAB chỉ cho admin
             if ("admin".equals(userRole)) {
                 if (addServiceFab != null) {
                     addServiceFab.setVisibility(View.VISIBLE);
@@ -81,7 +79,6 @@ public class ServiceFragment extends Fragment {
                 }
             }
 
-            // Tải danh sách dịch vụ
             firebaseService.getServices(services -> {
                 try {
                     List<Service> serviceList = services != null ? services : new ArrayList<>();
@@ -92,7 +89,6 @@ public class ServiceFragment extends Fragment {
                     serviceAdapter = new ServiceAdapter(serviceList, this::showServiceDetailsDialog);
                     servicesRecyclerView.setAdapter(serviceAdapter);
 
-                    // Tải danh sách đặt dịch vụ
                     firebaseService.getBookings(bookings -> {
                         try {
                             List<Booking> filteredBookings = new ArrayList<>();
@@ -207,7 +203,6 @@ public class ServiceFragment extends Fragment {
                 if (success) {
                     Toast.makeText(getContext(), "Thêm dịch vụ thành công", Toast.LENGTH_SHORT).show();
                     dialog.dismiss();
-                    // Cập nhật lại danh sách dịch vụ
                     progressBar.setVisibility(View.VISIBLE);
                     servicesRecyclerView.setVisibility(View.GONE);
                     firebaseService.getServices(services -> {
@@ -229,7 +224,7 @@ public class ServiceFragment extends Fragment {
     private void showServiceDetailsDialog(Service service) {
         try {
             Dialog dialog = new Dialog(requireContext(), R.style.CustomDialog);
-            dialog.setContentView(R.layout.dialog_book_service);
+            dialog.setContentView(R.layout.dialog_service_details);
 
             Window window = dialog.getWindow();
             if (window != null) {
@@ -240,23 +235,41 @@ public class ServiceFragment extends Fragment {
 
             TextView serviceName = dialog.findViewById(R.id.service_name);
             TextView servicePrice = dialog.findViewById(R.id.service_price);
-            TextInputEditText dateInput = dialog.findViewById(R.id.booking_date_input);
+            TextView serviceRemainingSlots = dialog.findViewById(R.id.service_remaining_slots);
+            TextView serviceDescription = dialog.findViewById(R.id.service_description);
+            TextView serviceDetails = dialog.findViewById(R.id.service_details);
+            RecyclerView bookingsRecyclerViewDialog = dialog.findViewById(R.id.bookings_recycler_view);
             MaterialButton bookButton = dialog.findViewById(R.id.book_button);
-            MaterialButton cancelButton = dialog.findViewById(R.id.cancel_button);
+            MaterialButton cancelButton = dialog.findViewById(R.id.close_button);
 
-            // Kiểm tra null và gán giá trị mặc định
             String name = service.getName() != null ? service.getName() : "Không xác định";
             String description = service.getDescription() != null ? service.getDescription() : "Không có mô tả";
             String details = service.getDetails() != null ? service.getDetails() : "Không có chi tiết";
 
             serviceName.setText("Dịch vụ: " + name);
-            servicePrice.setText("Giá: " + String.format("%.2f", service.getPrice()) +
-                    "\nMô tả: " + description +
-                    "\nChi tiết: " + details +
-                    "\nSức chứa: " + service.getCapacity());
+            servicePrice.setText(String.format("%.2f", service.getPrice()));
+            serviceRemainingSlots.setText(String.valueOf(service.getCapacity()));
+            serviceDescription.setText(description);
+            serviceDetails.setText(details);
+
+            // Tải lịch sử booking cho dịch vụ
+            firebaseService.getBookings(bookings -> {
+                List<Booking> serviceBookings = new ArrayList<>();
+                for (Booking booking : bookings) {
+                    if (booking.getServiceId().equals(service.getId())) {
+                        serviceBookings.add(booking);
+                    }
+                }
+                Log.d(TAG, "Loaded " + serviceBookings.size() + " bookings for service: " + service.getId());
+                BookingAdapter dialogBookingAdapter = new BookingAdapter(serviceBookings);
+                bookingsRecyclerViewDialog.setLayoutManager(new LinearLayoutManager(getContext()));
+                bookingsRecyclerViewDialog.setAdapter(dialogBookingAdapter);
+            });
 
             if ("resident".equals(userRole)) {
                 bookButton.setVisibility(View.VISIBLE);
+                TextInputEditText dateInput = dialog.findViewById(R.id.booking_date_input);
+                dateInput.setVisibility(View.VISIBLE);
                 bookButton.setOnClickListener(v -> {
                     String date = dateInput.getText().toString().trim();
                     if (date.isEmpty()) {
@@ -277,7 +290,6 @@ public class ServiceFragment extends Fragment {
                         if (success) {
                             Toast.makeText(getContext(), "Đặt dịch vụ thành công", Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
-                            // Cập nhật lại danh sách đặt dịch vụ
                             progressBar.setVisibility(View.VISIBLE);
                             bookingsRecyclerView.setVisibility(View.GONE);
                             firebaseService.getBookings(bookings -> {
@@ -303,6 +315,7 @@ public class ServiceFragment extends Fragment {
                 });
             } else {
                 bookButton.setVisibility(View.GONE);
+                TextInputEditText dateInput = dialog.findViewById(R.id.booking_date_input);
                 dateInput.setVisibility(View.GONE);
             }
 
