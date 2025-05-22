@@ -67,6 +67,16 @@
                 app:layout_constraintStart_toStartOf="parent"
                 android:layout_marginTop="12dp"/>
 
+            <View
+                android:id="@+id/divider1"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:background="#E0E0E0"
+                app:layout_constraintTop_toBottomOf="@id/user_email"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="12dp"/>
+
             <TextView
                 android:id="@+id/user_phone"
                 android:layout_width="wrap_content"
@@ -74,9 +84,19 @@
                 android:text="Số điện thoại: Không xác định"
                 android:textSize="16sp"
                 android:textColor="@android:color/black"
-                app:layout_constraintTop_toBottomOf="@id/user_email"
+                app:layout_constraintTop_toBottomOf="@id/divider1"
                 app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginTop="8dp"/>
+                android:layout_marginTop="12dp"/>
+
+            <View
+                android:id="@+id/divider2"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:background="#E0E0E0"
+                app:layout_constraintTop_toBottomOf="@id/user_phone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="12dp"/>
 
             <TextView
                 android:id="@+id/user_id_number"
@@ -85,9 +105,19 @@
                 android:text="Số căn cước: Không xác định"
                 android:textSize="16sp"
                 android:textColor="@android:color/black"
-                app:layout_constraintTop_toBottomOf="@id/user_phone"
+                app:layout_constraintTop_toBottomOf="@id/divider2"
                 app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginTop="8dp"/>
+                android:layout_marginTop="12dp"/>
+
+            <View
+                android:id="@+id/divider3"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:background="#E0E0E0"
+                app:layout_constraintTop_toBottomOf="@id/user_id_number"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="12dp"/>
 
             <TextView
                 android:id="@+id/user_total_paid"
@@ -96,9 +126,19 @@
                 android:text="Số tiền đã trả: 0.00"
                 android:textSize="16sp"
                 android:textColor="@android:color/black"
-                app:layout_constraintTop_toBottomOf="@id/user_id_number"
+                app:layout_constraintTop_toBottomOf="@id/divider3"
                 app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginTop="8dp"/>
+                android:layout_marginTop="12dp"/>
+
+            <View
+                android:id="@+id/divider4"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:background="#E0E0E0"
+                app:layout_constraintTop_toBottomOf="@id/user_total_paid"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="12dp"/>
 
             <TextView
                 android:id="@+id/user_apartment_number"
@@ -107,9 +147,19 @@
                 android:text="Số nhà: Không có"
                 android:textSize="16sp"
                 android:textColor="@android:color/black"
-                app:layout_constraintTop_toBottomOf="@id/user_total_paid"
+                app:layout_constraintTop_toBottomOf="@id/divider4"
                 app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginTop="8dp"/>
+                android:layout_marginTop="12dp"/>
+
+            <View
+                android:id="@+id/divider5"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:background="#E0E0E0"
+                app:layout_constraintTop_toBottomOf="@id/user_apartment_number"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="12dp"/>
 
             <TextView
                 android:id="@+id/user_status"
@@ -118,9 +168,19 @@
                 android:text="Trạng thái: Không xác định"
                 android:textSize="16sp"
                 android:textColor="@android:color/black"
-                app:layout_constraintTop_toBottomOf="@id/user_apartment_number"
+                app:layout_constraintTop_toBottomOf="@id/divider5"
                 app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginTop="8dp"/>
+                android:layout_marginTop="12dp"/>
+
+            <View
+                android:id="@+id/divider6"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:background="#E0E0E0"
+                app:layout_constraintTop_toBottomOf="@id/user_status"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="12dp"/>
 
             <TextView
                 android:id="@+id/user_lease_duration"
@@ -129,9 +189,9 @@
                 android:text="Thời gian thuê: Không xác định"
                 android:textSize="16sp"
                 android:textColor="@android:color/black"
-                app:layout_constraintTop_toBottomOf="@id/user_status"
+                app:layout_constraintTop_toBottomOf="@id/divider6"
                 app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginTop="8dp"/>
+                android:layout_marginTop="12dp"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 

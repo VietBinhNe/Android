@@ -4,6 +4,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.apartmentmanager.R;
@@ -16,11 +17,11 @@ import java.util.function.Consumer;
 public class ApartmentAdapter extends RecyclerView.Adapter<ApartmentAdapter.ViewHolder> {
     private static final String TAG = "ApartmentAdapter";
     private List<Apartment> apartmentList;
-    private Consumer<Apartment> onRentRequestClick;
+    private Consumer<Apartment> onClick;
 
-    public ApartmentAdapter(List<Apartment> apartmentList, Consumer<Apartment> onRentRequestClick) {
+    public ApartmentAdapter(List<Apartment> apartmentList, Consumer<Apartment> onClick) {
         this.apartmentList = apartmentList;
-        this.onRentRequestClick = onRentRequestClick;
+        this.onClick = onClick;
         Log.d(TAG, "ApartmentAdapter initialized with " + apartmentList.size() + " apartments");
     }
 
@@ -40,7 +41,34 @@ public class ApartmentAdapter extends RecyclerView.Adapter<ApartmentAdapter.View
             holder.priceTextView.setText("Giá: " + String.format("%.2f", apartment.getPrice()));
             holder.descriptionTextView.setText("Mô tả: " + (apartment.getDescription() != null ? apartment.getDescription() : "Không có mô tả"));
 
-            holder.rentButton.setOnClickListener(v -> onRentRequestClick.accept(apartment));
+            // Set apartment image
+            String number = apartment.getNumber();
+            if (number != null) {
+                switch (number) {
+                    case "101":
+                        holder.imageView.setImageResource(R.drawable.apartment101);
+                        break;
+                    case "102":
+                        holder.imageView.setImageResource(R.drawable.apartment102);
+                        break;
+                    case "103":
+                        holder.imageView.setImageResource(R.drawable.apartment103);
+                        break;
+                    case "201":
+                        holder.imageView.setImageResource(R.drawable.apartment201);
+                        break;
+                    case "202":
+                        holder.imageView.setImageResource(R.drawable.apartment202);
+                        break;
+                    default:
+                        holder.imageView.setImageResource(R.drawable.main_image);
+                        break;
+                }
+            } else {
+                holder.imageView.setImageResource(R.drawable.main_image);
+            }
+
+            holder.itemView.setOnClickListener(v -> onClick.accept(apartment));
         } catch (Exception e) {
             Log.e(TAG, "Error binding apartment at position " + position + ": " + e.getMessage(), e);
         }
@@ -55,7 +83,7 @@ public class ApartmentAdapter extends RecyclerView.Adapter<ApartmentAdapter.View
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView numberTextView, statusTextView, priceTextView, descriptionTextView;
-        MaterialButton rentButton;
+        ImageView imageView;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -63,7 +91,7 @@ public class ApartmentAdapter extends RecyclerView.Adapter<ApartmentAdapter.View
             statusTextView = itemView.findViewById(R.id.apartment_status);
             priceTextView = itemView.findViewById(R.id.apartment_price);
             descriptionTextView = itemView.findViewById(R.id.apartment_description);
-            rentButton = itemView.findViewById(R.id.rent_button);
+            imageView = itemView.findViewById(R.id.apartment_image);
         }
     }
 }

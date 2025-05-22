@@ -14,11 +14,11 @@
         android:padding="16dp">
 
         <TextView
-            android:id="@+id/apartment_number"
+            android:id="@+id/tenant_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Phòng"
-            android:textSize="20sp"
+            android:text="Thông tin người thuê"
+            android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="@color/colorPrimary"
             app:layout_constraintTop_toTopOf="parent"
@@ -26,24 +26,13 @@
             app:layout_constraintEnd_toEndOf="parent"/>
 
         <TextView
-            android:id="@+id/apartment_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Trạng thái"
-            android:textSize="16sp"
-            android:textColor="@android:color/black"
-            app:layout_constraintTop_toBottomOf="@id/apartment_number"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="8dp"/>
-
-        <TextView
             android:id="@+id/tenant_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Chủ hộ"
+            android:text="Chủ hộ: Chưa có"
             android:textSize="16sp"
             android:textColor="@android:color/black"
-            app:layout_constraintTop_toBottomOf="@id/apartment_status"
+            app:layout_constraintTop_toBottomOf="@id/tenant_title"
             app:layout_constraintStart_toStartOf="parent"
             android:layout_marginTop="8dp"/>
 
@@ -51,7 +40,7 @@
             android:id="@+id/lease_duration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Thời gian thuê"
+            android:text="Thời gian thuê: Chưa xác định"
             android:textSize="16sp"
             android:textColor="@android:color/black"
             app:layout_constraintTop_toBottomOf="@id/tenant_name"
@@ -59,13 +48,60 @@
             android:layout_marginTop="8dp"/>
 
         <TextView
-            android:id="@+id/price"
+            android:id="@+id/separator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Giá"
+            android:text="---"
             android:textSize="16sp"
             android:textColor="@android:color/black"
             app:layout_constraintTop_toBottomOf="@id/lease_duration"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="16dp"/>
+
+        <TextView
+            android:id="@+id/apartment_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Thông tin phòng"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/colorPrimary"
+            app:layout_constraintTop_toBottomOf="@id/separator"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="16dp"/>
+
+        <TextView
+            android:id="@+id/apartment_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Phòng: Không xác định"
+            android:textSize="16sp"
+            android:textColor="@android:color/black"
+            app:layout_constraintTop_toBottomOf="@id/apartment_title"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="8dp"/>
+
+        <TextView
+            android:id="@+id/apartment_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Trạng thái: Không xác định"
+            android:textSize="16sp"
+            android:textColor="@android:color/black"
+            app:layout_constraintTop_toBottomOf="@id/apartment_number"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="8dp"/>
+
+        <TextView
+            android:id="@+id/price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Giá: 0.00"
+            android:textSize="16sp"
+            android:textColor="@android:color/black"
+            app:layout_constraintTop_toBottomOf="@id/apartment_status"
             app:layout_constraintStart_toStartOf="parent"
             android:layout_marginTop="8dp"/>
 
@@ -73,7 +109,7 @@
             android:id="@+id/description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Mô tả"
+            android:text="Mô tả: Không có mô tả"
             android:textSize="16sp"
             android:textColor="@android:color/black"
             app:layout_constraintTop_toBottomOf="@id/price"
@@ -84,12 +120,24 @@
             android:id="@+id/details"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Chi tiết"
+            android:text="Chi tiết: Không có chi tiết"
             android:textSize="16sp"
             android:textColor="@android:color/black"
             app:layout_constraintTop_toBottomOf="@id/description"
             app:layout_constraintStart_toStartOf="parent"
             android:layout_marginTop="8dp"/>
+
+        <TextView
+            android:id="@+id/requests_recycler_view"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Không có yêu cầu thuê"
+            android:textSize="16sp"
+            android:textColor="@android:color/black"
+            app:layout_constraintTop_toBottomOf="@id/details"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="16dp"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/close_button"
@@ -97,7 +145,7 @@
             android:layout_height="wrap_content"
             android:text="Đóng"
             android:textColor="@color/colorAccent"
-            app:layout_constraintTop_toBottomOf="@id/details"
+            app:layout_constraintTop_toBottomOf="@id/requests_recycler_view"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="16dp"
             style="@style/Widget.Material3.Button.TextButton"

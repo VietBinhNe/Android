@@ -55,6 +55,19 @@ public class FirebaseService {
                 });
     }
 
+    public void updateUser(User user, Consumer<Boolean> callback) {
+        Log.d(TAG, "Attempting to update user: " + user.getId());
+        db.collection("users").document(user.getId()).set(user)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "User updated successfully: " + user.getId());
+                    callback.accept(true);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error updating user: " + e.getMessage(), e);
+                    callback.accept(false);
+                });
+    }
+
     public void getApartments(Consumer<List<Apartment>> callback) {
         Log.d(TAG, "Attempting to load all apartments");
         db.collection("apartments").get()
@@ -70,6 +83,19 @@ public class FirebaseService {
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error loading apartments: " + e.getMessage(), e);
                     callback.accept(null);
+                });
+    }
+
+    public void updateApartment(Apartment apartment, Consumer<Boolean> callback) {
+        Log.d(TAG, "Attempting to update apartment: " + apartment.getId());
+        db.collection("apartments").document(apartment.getId()).set(apartment)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Apartment updated successfully: " + apartment.getId());
+                    callback.accept(true);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error updating apartment: " + e.getMessage(), e);
+                    callback.accept(false);
                 });
     }
 
@@ -362,6 +388,19 @@ public class FirebaseService {
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error adding request: " + e.getMessage(), e);
+                    callback.accept(false);
+                });
+    }
+
+    public void addRentRequest(Request request, Consumer<Boolean> callback) {
+        Log.d(TAG, "Attempting to add rent request: " + request.getId() + " for apartment: " + request.getApartmentId());
+        db.collection("requests").document(request.getId()).set(request)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Rent request added successfully: " + request.getId());
+                    callback.accept(true);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error adding rent request: " + e.getMessage(), e);
                     callback.accept(false);
                 });
     }

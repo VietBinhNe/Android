@@ -5,6 +5,7 @@ public class Request {
     private String title;
     private String content;
     private String userId;
+    private String apartmentId;
     private String status;
     private String date;
 
@@ -19,20 +20,32 @@ public class Request {
         this.date = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(new java.util.Date());
     }
 
-    public Request(String id, String title, String content, String userId, String status) {
+    public Request(String id, String title, String content, String userId, String apartmentId) {
         this.id = id;
         this.title = title;
         this.content = content;
         this.userId = userId;
+        this.apartmentId = apartmentId;
+        this.status = "pending";
+        this.date = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(new java.util.Date());
+    }
+
+    public Request(String id, String title, String content, String userId, String apartmentId, String status) {
+        this.id = id;
+        this.title = title;
+        this.content = content;
+        this.userId = userId;
+        this.apartmentId = apartmentId;
         this.status = status;
         this.date = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(new java.util.Date());
     }
 
-    public Request(String id, String title, String content, String userId, String status, String date) {
+    public Request(String id, String title, String content, String userId, String apartmentId, String status, String date) {
         this.id = id;
         this.title = title;
         this.content = content;
         this.userId = userId;
+        this.apartmentId = apartmentId;
         this.status = status;
         this.date = date;
     }
@@ -45,6 +58,8 @@ public class Request {
     public void setContent(String content) { this.content = content; }
     public String getUserId() { return userId; }
     public void setUserId(String userId) { this.userId = userId; }
+    public String getApartmentId() { return apartmentId; }
+    public void setApartmentId(String apartmentId) { this.apartmentId = apartmentId; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
     public String getDate() { return date; }

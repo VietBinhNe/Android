@@ -23,12 +23,13 @@
         android:layout_height="200dp"
         android:layout_marginTop="16dp"
         android:contentDescription="Main Image"
+        android:src="@drawable/main_image"
         app:layout_constraintTop_toBottomOf="@id/welcome_text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/user_management_card"
+        android:id="@+id/info_card"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -36,8 +37,7 @@
         app:cardCornerRadius="8dp"
         app:layout_constraintTop_toBottomOf="@id/main_image"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:visibility="gone">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -45,44 +45,63 @@
             android:padding="16dp">
 
             <TextView
-                android:id="@+id/user_management_title"
+                android:id="@+id/info_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Quản lý thông tin"
+                android:text="Giới thiệu"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"/>
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/user_management_button"
+                android:id="@+id/info_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Xem chi tiết"
-                app:layout_constraintTop_toBottomOf="@id/user_management_title"
+                app:layout_constraintTop_toBottomOf="@id/info_title"
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginTop="8dp"
                 style="@style/Widget.Material3.Button.ElevatedButton"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/info_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Giới thiệu"
-        app:layout_constraintTop_toBottomOf="@id/user_management_card"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="16dp"
-        style="@style/Widget.Material3.Button.ElevatedButton"/>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/available_rooms_recycler_view"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/management_card"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/info_button"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:cardElevation="4dp"
+        app:cardCornerRadius="8dp"
+        app:layout_constraintTop_toBottomOf="@id/info_card"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/management_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Quản lý phòng"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/management_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Xem chi tiết"
+                app:layout_constraintTop_toBottomOf="@id/management_title"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="8dp"
+                style="@style/Widget.Material3.Button.ElevatedButton"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

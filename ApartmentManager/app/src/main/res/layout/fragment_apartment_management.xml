@@ -13,7 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:text="Quản lý thông tin cư dân"
+        android:text="Quản lý phòng"
         android:textColor="@color/colorPrimary"
         android:textSize="20sp"
         android:textStyle="bold"
@@ -32,7 +32,7 @@
         android:layout_marginTop="16dp"/>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/user_recycler_view"
+        android:id="@+id/apartment_recycler_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="25dp"

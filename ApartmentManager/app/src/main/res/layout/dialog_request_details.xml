@@ -70,16 +70,29 @@
             android:layout_marginTop="8dp"/>
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/resolve_button"
+            android:id="@+id/approve_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Đã giải quyết"
+            android:text="Phê duyệt"
             android:textColor="@android:color/white"
             app:layout_constraintTop_toBottomOf="@id/user_id"
             app:layout_constraintStart_toStartOf="parent"
             android:layout_marginTop="16dp"
             style="@style/Widget.Material3.Button.ElevatedButton"
             app:backgroundTint="@color/pastel_blue"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/reject_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Từ chối"
+            android:textColor="@android:color/white"
+            app:layout_constraintTop_toBottomOf="@id/user_id"
+            app:layout_constraintStart_toEndOf="@id/approve_button"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="8dp"
+            style="@style/Widget.Material3.Button.ElevatedButton"
+            app:backgroundTint="@color/red"/> <!-- Thay @android:color/red thành @color/red -->
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/close_button"
