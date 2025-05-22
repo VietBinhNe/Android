@@ -264,22 +264,18 @@ public class FirebaseService {
     public void sendNotificationToAllResidents(Notification notification, Consumer<Boolean> callback) {
         Log.d(TAG, "Attempting to send notification to all residents: " + notification.getId());
         db.collection("users")
-                .whereEqualTo("role", "resident")
+                .whereEqualTo("status", "Đang thuê") // Chỉ gửi tới những người đang thuê
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (queryDocumentSnapshots.isEmpty()) {
-                        Log.w(TAG, "No residents found");
+                        Log.w(TAG, "No residents found with status 'Đang thuê'");
                         callback.accept(false);
                         return;
                     }
 
-                    List<String> residentIds = new ArrayList<>();
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        residentIds.add(document.getId());
-                    }
-
                     List<Notification> notificationsToAdd = new ArrayList<>();
-                    for (String residentId : residentIds) {
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        String residentId = document.getId();
                         Notification residentNotification = new Notification(
                                 notification.getId() + "_" + residentId,
                                 notification.getTitle(),
@@ -290,22 +286,18 @@ public class FirebaseService {
                         notificationsToAdd.add(residentNotification);
                     }
 
-                    int[] successCount = {0};
-                    int total = notificationsToAdd.size();
-                    for (Notification notif : notificationsToAdd) {
-                        db.collection("notifications").document(notif.getId()).set(notif)
-                                .addOnSuccessListener(aVoid -> {
-                                    successCount[0]++;
-                                    if (successCount[0] == total) {
-                                        Log.d(TAG, "Sent notification to all residents successfully");
-                                        callback.accept(true);
-                                    }
-                                })
-                                .addOnFailureListener(e -> {
-                                    Log.e(TAG, "Error sending notification to resident: " + notif.getResidentId() + ", " + e.getMessage(), e);
-                                    callback.accept(false);
-                                });
-                    }
+                    // Sử dụng batch để đảm bảo tất cả thông báo được gửi cùng lúc
+                    db.runBatch(batch -> {
+                        for (Notification notif : notificationsToAdd) {
+                            batch.set(db.collection("notifications").document(notif.getId()), notif);
+                        }
+                    }).addOnSuccessListener(aVoid -> {
+                        Log.d(TAG, "Sent notification to all residents successfully");
+                        callback.accept(true);
+                    }).addOnFailureListener(e -> {
+                        Log.e(TAG, "Error sending notifications to all residents: " + e.getMessage(), e);
+                        callback.accept(false);
+                    });
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error fetching residents: " + e.getMessage(), e);

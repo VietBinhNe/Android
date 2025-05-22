@@ -18,6 +18,7 @@ import com.example.apartmentmanager.adapters.UserAdapter;
 import com.example.apartmentmanager.models.User;
 import com.example.apartmentmanager.network.FirebaseService;
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,9 @@ public class UserManagementFragment extends Fragment {
     private UserAdapter userAdapter;
     private FirebaseService firebaseService;
     private List<User> userList;
+    private TextView nameTextView, emailTextView, phoneTextView, idNumberTextView, totalPaidTextView, apartmentNumberTextView, statusTextView, leaseDurationTextView;
+    private View userInfoCard;
+    private String userRole;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -36,21 +40,48 @@ public class UserManagementFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_user_management, container, false);
 
         try {
+            // Khởi tạo RecyclerView và các view liên quan
             recyclerView = view.findViewById(R.id.user_recycler_view);
             progressBar = view.findViewById(R.id.progress_bar);
-            if (recyclerView == null || progressBar == null) {
-                Log.e(TAG, "RecyclerView or ProgressBar is null");
+            userInfoCard = view.findViewById(R.id.user_info_card);
+            nameTextView = view.findViewById(R.id.user_name);
+            emailTextView = view.findViewById(R.id.user_email);
+            phoneTextView = view.findViewById(R.id.user_phone);
+            idNumberTextView = view.findViewById(R.id.user_id_number);
+            totalPaidTextView = view.findViewById(R.id.user_total_paid);
+            apartmentNumberTextView = view.findViewById(R.id.user_apartment_number);
+            statusTextView = view.findViewById(R.id.user_status);
+            leaseDurationTextView = view.findViewById(R.id.user_lease_duration);
+
+            // Kiểm tra các view cần thiết
+            if (recyclerView == null || progressBar == null || userInfoCard == null ||
+                    nameTextView == null || emailTextView == null || phoneTextView == null ||
+                    idNumberTextView == null || totalPaidTextView == null || apartmentNumberTextView == null ||
+                    statusTextView == null || leaseDurationTextView == null) {
+                Log.e(TAG, "One or more views are null");
                 Toast.makeText(getContext(), "Lỗi giao diện", Toast.LENGTH_SHORT).show();
                 return view;
             }
 
+            // Khởi tạo RecyclerView và adapter ngay cả khi các view khác bị null
             recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-            firebaseService = new FirebaseService();
             userList = new ArrayList<>();
             userAdapter = new UserAdapter(userList, this::showUserDetailsDialog);
-            recyclerView.setAdapter(userAdapter);
+            recyclerView.setAdapter(userAdapter); // Gắn adapter ngay lập tức
 
-            loadAllUsers();
+            firebaseService = new FirebaseService();
+            userRole = getArguments() != null ? getArguments().getString("userRole") : "resident";
+            Log.d(TAG, "User role: " + userRole);
+
+            if ("admin".equals(userRole)) {
+                recyclerView.setVisibility(View.VISIBLE);
+                userInfoCard.setVisibility(View.GONE);
+                loadAllUsers();
+            } else {
+                recyclerView.setVisibility(View.GONE);
+                userInfoCard.setVisibility(View.VISIBLE);
+                loadResidentInfo();
+            }
         } catch (Exception e) {
             Log.e(TAG, "Error in onCreateView: " + e.getMessage(), e);
             Toast.makeText(getContext(), "Lỗi khi tải danh sách người dùng", Toast.LENGTH_SHORT).show();
@@ -80,6 +111,29 @@ public class UserManagementFragment extends Fragment {
                 Log.e(TAG, "Error loading users: " + e.getMessage(), e);
                 Toast.makeText(getContext(), "Lỗi khi tải danh sách người dùng", Toast.LENGTH_SHORT).show();
             }
+        });
+    }
+
+    private void loadResidentInfo() {
+        Log.d(TAG, "Loading resident info");
+        progressBar.setVisibility(View.VISIBLE);
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        firebaseService.getUser(userId, user -> {
+            progressBar.setVisibility(View.GONE);
+            if (user == null) {
+                Log.e(TAG, "loadResidentInfo: User not found for ID: " + userId);
+                Toast.makeText(getContext(), "Không tìm thấy thông tin người dùng", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            nameTextView.setText("Tên: " + (user.getName() != null ? user.getName() : "Không xác định"));
+            emailTextView.setText("Email: " + (user.getEmail() != null ? user.getEmail() : "Không xác định"));
+            phoneTextView.setText("Số điện thoại: " + (user.getPhoneNumber() != null ? user.getPhoneNumber() : "Không xác định"));
+            idNumberTextView.setText("Số căn cước: " + (user.getIdNumber() != null ? user.getIdNumber() : "Không xác định"));
+            totalPaidTextView.setText("Số tiền đã trả: " + String.format("%.2f", user.getTotalPaid()));
+            apartmentNumberTextView.setText("Số nhà: " + (user.getApartmentNumber() != null ? user.getApartmentNumber() : "Không có"));
+            statusTextView.setText("Trạng thái: " + (user.getStatus() != null ? user.getStatus() : "Không xác định"));
+            leaseDurationTextView.setText("Thời gian thuê: " + (user.getLeaseDuration() != null ? user.getLeaseDuration() : "Không xác định"));
         });
     }
 
